@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import { DesktopSidebar } from "@/components/desktop-sidebar"
 import { BottomNav } from "@/components/bottom-nav"
-
+import { analyzeImage } from "@/lib/api"
 const ANALYSIS_STEPS = [
   { id: "detection", label: "Face detection" },
   { id: "analysis", label: "Skin analysis" },
@@ -83,39 +83,42 @@ export default function UploadPage() {
     if (file) handleFile(file)
   }, [handleFile])
 
-  const startAnalysis = useCallback(() => {
+  const startAnalysis = useCallback(async() => {
+    if (!fileInputRef.current?.files?.[0]) return
     setIsAnalyzing(true)
     setCurrentStep(0)
     setProgress(0)
 
-    let step = 0
-    const stepDuration = 2000
-    const progressInterval = 50
+    try{
+      
+      // Step 1 - Face detection
+      setCurrentStep(0)
+      setProgress(33)
 
-    const updateProgress = () => {
-      setProgress((prev) => {
-        const currentMax = ((step + 1) / ANALYSIS_STEPS.length) * 100
-        const currentMin = (step / ANALYSIS_STEPS.length) * 100
-        return Math.min(prev + (currentMax - currentMin) / (stepDuration / progressInterval), currentMax)
-      })
-    }
+      const file = fileInputRef.current.files[0]
+    
+      // Step 2 - Skin analysis (실제 API 호출)
+      setCurrentStep(1)
+      setProgress(66)
+    
+      const result = await analyzeImage(file)
+    
+      // Step 3 - Generating recommendations
+      setCurrentStep(2)
+      setProgress(100)
 
-    const progressTimer = setInterval(updateProgress, progressInterval)
-    const stepTimer = setInterval(() => {
-      step++
-      if (step < ANALYSIS_STEPS.length) {
-        setCurrentStep(step)
-      } else {
-        clearInterval(stepTimer)
-        clearInterval(progressTimer)
-        setProgress(100)
-        setTimeout(() => {
-          setIsAnalyzing(false)
-          setCurrentStep(0)
-          setProgress(0)
-        }, 500)
-      }
-    }, stepDuration)
+      setTimeout(() => {
+        // 결과 페이지로 이동하면서 데이터 전달
+        const params = new URLSearchParams()
+        params.set('data', JSON.stringify(result))
+        window.location.href = `/results?${params.toString()}`
+      }, 500)
+    } catch (error) {
+    setIsAnalyzing(false)
+    setCurrentStep(0)
+    setProgress(0)
+    alert(error instanceof Error ? error.message : 'Analysis failed')
+  }
   }, [])
 
   const clearImage = useCallback(() => {
