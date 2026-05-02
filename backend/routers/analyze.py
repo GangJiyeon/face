@@ -1,6 +1,8 @@
 import uuid, os, tempfile
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from pipeline.face import extract_landmarks
+from pipeline.preprocess import preprocess_roi
+
 router = APIRouter()
 
 ALLOWED_TYPES = ["image/jpeg", "image/png", "image/heic", "image/webp"]
@@ -50,6 +52,31 @@ async def test_landmarks(file: UploadFile = File(...)):
     try:
         result = extract_landmarks(tmp_path)
         return result
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    finally:
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
+
+
+
+@router.post("/test-preprocess")
+async def test_preprocess(file: UploadFile = File(...)):
+    contents = await file.read()
+    
+    tmp_path = f"/tmp/{uuid.uuid4()}.jpg"
+    with open(tmp_path, "wb") as f:
+        f.write(contents)
+    
+    try:
+        from pipeline.face import extract_landmarks
+        landmarks = extract_landmarks(tmp_path)
+        roi_result = preprocess_roi(tmp_path, landmarks["roi_points"])
+        
+        return {
+            "regions": list(roi_result.keys()),
+            "message": "preprocess ok"
+        }
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     finally:
