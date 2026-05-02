@@ -1,5 +1,6 @@
 import uuid, os, tempfile
 from fastapi import APIRouter, UploadFile, File, HTTPException
+from pipeline.face import extract_landmarks
 router = APIRouter()
 
 ALLOWED_TYPES = ["image/jpeg", "image/png", "image/heic", "image/webp"]
@@ -35,5 +36,22 @@ async def analyze_skin(file: UploadFile = File(...)):
         }
     finally:
         # 임시파일 삭제
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
+
+@router.post("/test-landmarks")
+async def test_landmarks(file: UploadFile = File(...)):
+    contents = await file.read()
+    
+    tmp_path = f"/tmp/{uuid.uuid4()}.jpg"
+    with open(tmp_path, "wb") as f:
+        f.write(contents)
+    
+    try:
+        result = extract_landmarks(tmp_path)
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    finally:
         if os.path.exists(tmp_path):
             os.remove(tmp_path)
