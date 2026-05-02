@@ -24,4 +24,10 @@ postgres_data/
 .vscode/
 .idea/
 
+<<<<<<< HEAD
 models
+=======
+models
+
+*.csv
+>>>>>>> feature/be-14-beauty-facts
