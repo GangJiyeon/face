@@ -82,3 +82,23 @@ async def test_preprocess(file: UploadFile = File(...)):
     finally:
         if os.path.exists(tmp_path):
             os.remove(tmp_path)
+
+
+from pipeline.scoring import calculate_scores
+
+@router.post("/test-scores")
+async def test_scores(file: UploadFile = File(...)):
+    contents = await file.read()
+    tmp_path = f"/tmp/{uuid.uuid4()}.jpg"
+    with open(tmp_path, "wb") as f:
+        f.write(contents)
+    try:
+        landmarks = extract_landmarks(tmp_path)
+        preprocessed = preprocess_roi(tmp_path, landmarks["roi_points"])
+        scores = calculate_scores(preprocessed)
+        return scores
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    finally:
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
