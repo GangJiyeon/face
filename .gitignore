@@ -25,3 +25,5 @@ postgres_data/
 .idea/
 
 models
+
+*.csv

@@ -86,4 +86,4 @@ def seed():
     print(f"{count}개 제품 저장 완료!")
 
 if __name__ == "__main__":
-    seed()
+    seed()   
