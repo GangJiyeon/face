@@ -1,5 +1,6 @@
 import uuid, os
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
+from numpy import number
 from sqlalchemy.orm import Session
 from db.session import get_db
 from db.models import Product
@@ -103,6 +104,8 @@ async def analyze_skin(file: UploadFile = File(...), db: Session = Depends(get_d
             "skin_type": skin_type,
             "products": top_products,
             "analyzed_at": datetime.now().isoformat(),
+            "landmarks": landmarks["landmarks"],
+            "image_size": landmarks["image_size"],  
         }
 
     except ValueError as e:

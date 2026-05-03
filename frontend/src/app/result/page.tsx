@@ -28,29 +28,6 @@ import { DesktopSidebar } from "@/components/desktop-sidebar"
 
 
 
-const faceLandmarks = [
-  { x: 30, y: 35 },
-  { x: 38, y: 33 },
-  { x: 62, y: 33 },
-  { x: 70, y: 35 },
-  { x: 50, y: 45 },
-  { x: 50, y: 55 },
-  { x: 42, y: 58 },
-  { x: 58, y: 58 },
-  { x: 35, y: 70 },
-  { x: 50, y: 72 },
-  { x: 65, y: 70 },
-  { x: 25, y: 50 },
-  { x: 75, y: 50 },
-  { x: 50, y: 25 },
-  { x: 35, y: 28 },
-  { x: 65, y: 28 },
-  { x: 20, y: 45 },
-  { x: 80, y: 45 },
-  { x: 30, y: 80 },
-  { x: 50, y: 85 },
-  { x: 70, y: 80 },
-]
 
 
 function ScoreCard({
@@ -112,15 +89,23 @@ function RecommendedProductCard({
 export default function ResultsPage() {
   const searchParams = useSearchParams()
   const [analysisData, setAnalysisData] = useState<AnalyzeResponse | null>(null)
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null)
 
   const [isLoggedIn] = useState(false)
   const [showLoginDialog, setShowLoginDialog] = useState(false)
 
+  const faceLandmarks = analysisData?.landmarks?.map(([x, y]) => ({
+    x: (x / (analysisData.image_size?.width || 1)) * 100,
+    y: (y / (analysisData.image_size?.height || 1)) * 100,
+  })) || []
+
+  
   const handleSave = () => {
     if (!isLoggedIn) {
       setShowLoginDialog(true)
     }
   }
+
 
   const today = new Date().toLocaleDateString("en-US", {
     year: "numeric",
@@ -128,14 +113,19 @@ export default function ResultsPage() {
     day: "numeric",
   })
 
+  
   useEffect(() => {
-  const data = searchParams.get("data")
-  if (data) {
-      try {
-        setAnalysisData(JSON.parse(data))
-      } catch (e) {
-        console.error("Failed to parse analysis data")
+    const data = searchParams.get("data")
+    if (data) {
+        try {
+          setAnalysisData(JSON.parse(data))
+        } catch (e) {
+          console.error("Failed to parse analysis data")
+        }
       }
+    const savedImage = sessionStorage.getItem('analysisImage')
+    if (savedImage) {
+      setUploadedImage(savedImage)
     }
   }, [searchParams])
 
@@ -212,28 +202,106 @@ export default function ResultsPage() {
             <div className="space-y-4 lg:space-y-6">
               {/* Face image */}
               <Card className="overflow-hidden border-0 shadow-md">
-                <CardContent className="p-0">
-                  <div className="relative aspect-4/5 w-full bg-linear-to-br from-[#FDF2F8] to-[#F3E8FF] lg:aspect-3/4">
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <svg viewBox="0 0 100 120" className="h-[80%] w-[60%] opacity-30">
-                        <ellipse cx="50" cy="55" rx="35" ry="45" fill="#C4B5FD" />
-                      </svg>
-                    </div>
-                    {faceLandmarks.map((point, index) => (
-                      <div
-                        key={index}
-                        className="absolute h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#F9A8C9] shadow-sm shadow-[#F9A8C9]/50"
-                        style={{ left: `${point.x}%`, top: `${point.y}%` }}
-                      >
-                        <div className="absolute inset-0 animate-ping rounded-full bg-[#F9A8C9] opacity-30" />
-                      </div>
-                    ))}
-                    <div className="absolute bottom-4 left-4 rounded-full bg-white/90 px-3 py-1.5 text-xs font-medium text-foreground shadow-sm backdrop-blur-sm">
-                      21 points analyzed
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+  <CardContent className="p-0">
+    <div className="relative aspect-4/5 w-full bg-linear-to-br from-[#FDF2F8] to-[#F3E8FF] lg:aspect-3/4">
+      
+      {/* 업로드 이미지 */}
+      {uploadedImage ? (
+        <img
+          src={uploadedImage}
+          alt="Analyzed face"
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <svg viewBox="0 0 100 120" className="h-[80%] w-[60%] opacity-30">
+            <ellipse cx="50" cy="55" rx="35" ry="45" fill="#C4B5FD" />
+          </svg>
+        </div>
+      )}
+
+      {/* SVG 오버레이 */}
+      {uploadedImage && analysisData?.landmarks && (
+        <svg
+          className="absolute inset-0 w-full h-full"
+          viewBox={`0 0 ${analysisData.image_size.width} ${analysisData.image_size.height}`}
+          preserveAspectRatio="xMidYMid slice"
+        >
+          {/* ROI 영역별 반투명 색칠 */}
+          {/* 이마 영역 */}
+          <polygon
+            points={analysisData.landmarks ?
+              [251,284,332,297,338,10,109,67,54,21,162,127,234,93,132,58,172,136,150,149,176,148,152,377,378,365,397,288,361,323,454,356,389].map(i =>
+                analysisData.landmarks[i] ? `${analysisData.landmarks[i][0]},${analysisData.landmarks[i][1]}` : ''
+              ).join(' ') : ''}
+            fill="#F9A8C9"
+            fillOpacity="0.2"
+            stroke="#F9A8C9"
+            strokeWidth="1"
+            strokeOpacity="0.5"
+          />
+          {/* 왼볼 */}
+          <polygon
+            points={analysisData.landmarks ?
+              [116,117,118,119,120,121,126,142,203].map(i =>
+                `${analysisData.landmarks[i][0]},${analysisData.landmarks[i][1]}`
+              ).join(' ') : ''}
+            fill="#C4B5FD"
+            fillOpacity="0.2"
+            stroke="#C4B5FD"
+            strokeWidth="1"
+            strokeOpacity="0.5"
+          />
+          {/* 오른볼 */}
+          <polygon
+            points={analysisData.landmarks ?
+              [345,346,347,348,349,350,355,371,423].map(i =>
+                `${analysisData.landmarks[i][0]},${analysisData.landmarks[i][1]}`
+              ).join(' ') : ''}
+            fill="#C4B5FD"
+            fillOpacity="0.2"
+            stroke="#C4B5FD"
+            strokeWidth="1"
+            strokeOpacity="0.5"
+          />
+          {[
+            // 코 중심
+            1, 4, 5, 6, 195, 197, 168, 9, 8,
+            // 눈 주변
+            33, 133, 362, 263, 159, 145, 386, 374,
+            // 눈썹
+            55, 285, 52, 282, 65, 295,
+            // 입 주변
+            61, 291, 17, 18, 200, 13, 14, 78, 308,
+            // 코 옆
+            48, 278, 219, 439,
+            // 이마
+            151, 10, 338,
+            // 턱
+            152, 175, 176, 177, 178,
+          ].map(i =>
+            analysisData.landmarks[i] ? (
+              <circle
+                key={i}
+                cx={analysisData.landmarks[i][0]}
+                cy={analysisData.landmarks[i][1]}
+                r="1.5"
+                fill="#F9A8C9"
+                fillOpacity="0.9"
+              />
+            ) : null
+          )}
+        </svg>
+      )}
+
+      <div className="absolute bottom-4 left-4 rounded-full bg-white/90 px-3 py-1.5 text-xs font-medium text-foreground shadow-sm backdrop-blur-sm">
+        21 points analyzed
+      </div>
+    </div>
+  </CardContent>
+</Card>
+
+
 
               {/* Score cards */}
               <div className="grid grid-cols-4 gap-2 lg:grid-cols-2 lg:gap-3">

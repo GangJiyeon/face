@@ -93,6 +93,9 @@ export default function UploadPage() {
     setCurrentStep(0)
     setProgress(0)
 
+    if (image) {
+      sessionStorage.setItem('analysisImage', image)
+    }
     try{
       
       // Step 1 - Face detection
@@ -123,7 +126,7 @@ export default function UploadPage() {
     setProgress(0)
     alert(error instanceof Error ? error.message : 'Analysis failed')
   }
-  }, [[selectedFile]])
+  }, [[selectedFile, image]])
 
   const clearImage = useCallback(() => {
     setImage(null)
