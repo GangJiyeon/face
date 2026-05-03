@@ -37,6 +37,8 @@ export interface AnalyzeResponse {
   skin_type: string
   products: Product[]
   analyzed_at: string
+  landmarks: [number, number][]
+  image_size: { width: number, height: number } 
 }
 
 // 에러 응답
