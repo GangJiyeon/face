@@ -53,14 +53,16 @@ export default function UploadPage() {
   const [currentStep, setCurrentStep] = useState(0)
   const [progress, setProgress] = useState(0)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
   const handleFile = useCallback((file: File) => {
-    if (file && file.type.startsWith("image/")) {
-      const reader = new FileReader()
-      reader.onload = (e) => setImage(e.target?.result as string)
-      reader.readAsDataURL(file)
-    }
-  }, [])
+  if (file && file.type.startsWith("image/")) {
+    setSelectedFile(file)  // 추가
+    const reader = new FileReader()
+    reader.onload = (e) => setImage(e.target?.result as string)
+    reader.readAsDataURL(file)
+  }
+}, [])
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -84,7 +86,9 @@ export default function UploadPage() {
   }, [handleFile])
 
   const startAnalysis = useCallback(async() => {
-    if (!fileInputRef.current?.files?.[0]) return
+    console.log("startAnalysis called")
+    console.log("file:", selectedFile)
+    if (!selectedFile) return
     setIsAnalyzing(true)
     setCurrentStep(0)
     setProgress(0)
@@ -95,7 +99,7 @@ export default function UploadPage() {
       setCurrentStep(0)
       setProgress(33)
 
-      const file = fileInputRef.current.files[0]
+      const file = selectedFile
     
       // Step 2 - Skin analysis (실제 API 호출)
       setCurrentStep(1)
@@ -111,7 +115,7 @@ export default function UploadPage() {
         // 결과 페이지로 이동하면서 데이터 전달
         const params = new URLSearchParams()
         params.set('data', JSON.stringify(result))
-        window.location.href = `/results?${params.toString()}`
+        window.location.href = `/result?${params.toString()}`
       }, 500)
     } catch (error) {
     setIsAnalyzing(false)
@@ -119,10 +123,11 @@ export default function UploadPage() {
     setProgress(0)
     alert(error instanceof Error ? error.message : 'Analysis failed')
   }
-  }, [])
+  }, [[selectedFile]])
 
   const clearImage = useCallback(() => {
     setImage(null)
+    setSelectedFile(null)
     if (fileInputRef.current) fileInputRef.current.value = ""
   }, [])
 
