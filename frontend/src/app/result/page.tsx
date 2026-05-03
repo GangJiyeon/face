@@ -1,6 +1,9 @@
 "use client"
 
 import { useState } from "react"
+import { useSearchParams } from "next/navigation"
+import { useEffect } from "react"
+import { AnalyzeResponse } from "@/types/api"
 import { ChevronLeft, Calendar, Bookmark, LogIn, TrendingUp } from "lucide-react"
 import Link from "next/link"
 import {
@@ -23,20 +26,7 @@ import {
 import { BottomNav } from "@/components/bottom-nav"
 import { DesktopSidebar } from "@/components/desktop-sidebar"
 
-const radarData = [
-  { metric: "Redness", value: 72, fullMark: 100 },
-  { metric: "Tone", value: 85, fullMark: 100 },
-  { metric: "Brightness", value: 68, fullMark: 100 },
-  { metric: "Moisture", value: 54, fullMark: 100 },
-  { metric: "Trouble", value: 78, fullMark: 100 },
-]
 
-const scoreMetrics = [
-  { label: "Redness", score: 72, color: "#F9A8C9" },
-  { label: "Tone", score: 85, color: "#C4B5FD" },
-  { label: "Brightness", score: 68, color: "#FCD34D" },
-  { label: "Moisture", score: 54, color: "#93C5FD" },
-]
 
 const faceLandmarks = [
   { x: 30, y: 35 },
@@ -62,30 +52,6 @@ const faceLandmarks = [
   { x: 70, y: 80 },
 ]
 
-const recommendedProducts = [
-  {
-    id: 1,
-    name: "Hydra Boost Serum",
-    image: "/placeholder.svg?height=120&width=120",
-    reason: "Addresses your moisture concerns with hyaluronic acid",
-  },
-  {
-    id: 2,
-    name: "Calm & Soothe Cream",
-    image: "/placeholder.svg?height=120&width=120",
-    reason: "Helps reduce redness with centella asiatica extract",
-  },
-  {
-    id: 3,
-    name: "Glow Vitamin C Essence",
-    image: "/placeholder.svg?height=120&width=120",
-    reason: "Improves brightness with 15% vitamin C complex",
-  },
-]
-
-const overallScore = Math.round(
-  scoreMetrics.reduce((acc, m) => acc + m.score, 0) / scoreMetrics.length
-)
 
 function ScoreCard({
   label,
@@ -144,6 +110,9 @@ function RecommendedProductCard({
 }
 
 export default function ResultsPage() {
+  const searchParams = useSearchParams()
+  const [analysisData, setAnalysisData] = useState<AnalyzeResponse | null>(null)
+
   const [isLoggedIn] = useState(false)
   const [showLoginDialog, setShowLoginDialog] = useState(false)
 
@@ -158,6 +127,44 @@ export default function ResultsPage() {
     month: "long",
     day: "numeric",
   })
+
+  useEffect(() => {
+  const data = searchParams.get("data")
+  if (data) {
+      try {
+        setAnalysisData(JSON.parse(data))
+      } catch (e) {
+        console.error("Failed to parse analysis data")
+      }
+    }
+  }, [searchParams])
+
+  const radarData = analysisData ? [
+    { metric: "Redness", value: analysisData.skin_scores.redness.chart_score, fullMark: 100 },
+    { metric: "Tone", value: analysisData.skin_scores.tone.chart_score, fullMark: 100 },
+    { metric: "Brightness", value: analysisData.skin_scores.brightness.chart_score, fullMark: 100 },
+    { metric: "Moisture", value: analysisData.skin_scores.moisture.chart_score, fullMark: 100 },
+    { metric: "Trouble", value: analysisData.skin_scores.trouble.chart_score, fullMark: 100 },
+  ] : []
+
+  const scoreMetrics = analysisData ? [
+    { label: "Redness", score: analysisData.skin_scores.redness.score, color: "#F9A8C9" },
+    { label: "Tone", score: analysisData.skin_scores.tone.score, color: "#C4B5FD" },
+    { label: "Brightness", score: analysisData.skin_scores.brightness.score, color: "#FCD34D" },
+    { label: "Moisture", score: analysisData.skin_scores.moisture.score, color: "#93C5FD" },
+  ] : []
+
+  // recommendedProducts 부분 교체
+  const recommendedProducts = analysisData?.products.map(p => ({
+    id: p.id,
+    name: p.name,
+    image: p.image_url || "/placeholder.svg?height=120&width=120",
+    reason: p.reason,
+  })) || []
+
+  const overallScore = analysisData ? Math.round(analysisData.skin_scores.overall) : 0
+
+
 
   return (
     <div className="flex min-h-screen bg-background">
