@@ -6,6 +6,9 @@ from schemas.skin import SkinScores
 
 router = APIRouter()
 
+ALLOWED_CATEGORIES = ["skincare", "moisturizer", "serum", "toner", "sunscreen", "foundation", "bb cream", "face", "skin"]
+
+
 # 피부 타입 분류
 def classify_skin_type(scores: dict) -> str:
     moisture = scores["moisture"]["score"]
@@ -45,6 +48,12 @@ def recommend_products(scores: dict, db: Session = Depends(get_db)):
     
     scored_products = []
     for product in products:
+
+        # 카테고리 필터
+        category = (product.category or "").lower()
+        if not any(c in category for c in ALLOWED_CATEGORIES):
+            continue
+
         ingredients = product.ingredients or []
         avoid = product.avoid_conditions or []
 
@@ -71,9 +80,16 @@ def recommend_products(scores: dict, db: Session = Depends(get_db)):
             })
 
     # 매칭 점수 높은 순으로 상위 5개
-    scored_products.sort(key=lambda x: x["match_score"], reverse=True)
+    # 이름 기준 중복 제거
+    seen_names = set()
+    unique_products = []
+    for p in scored_products:
+        if p["name"] not in seen_names:
+            seen_names.add(p["name"])
+            unique_products.append(p)
+
     
     return {
         "skin_type": skin_type,
-        "products": scored_products[:5],
+        "products": unique_products[:5],
     }
