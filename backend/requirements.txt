@@ -9,5 +9,6 @@ mediapipe
 opencv-python-headless
 pydantic-settings==2.2.1
 sqlalchemy
+alembic
 google-generativeai
 
