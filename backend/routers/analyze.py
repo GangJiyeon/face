@@ -1,13 +1,13 @@
 import uuid, os
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
-from numpy import number
 from sqlalchemy.orm import Session
 from db.session import get_db
-from db.models import Product
+from db.models import Product, AnalysisHistory
 from pipeline.face import extract_landmarks
 from pipeline.preprocess import preprocess_roi
 from pipeline.scoring import calculate_scores
 from pipeline.gemini import generate_recommendation_reason
+from core.auth import get_current_user
 from datetime import datetime
 
 router = APIRouter()
@@ -20,7 +20,11 @@ def analyze_health():
     return {"message": "analyze router ok"}
 
 @router.post("/")
-async def analyze_skin(file: UploadFile = File(...), db: Session = Depends(get_db)):
+async def analyze_skin(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
 
     if file.content_type not in ALLOWED_TYPES:
         raise HTTPException(status_code=400, detail="지원하지 않는 파일 형식입니다.")
@@ -99,13 +103,23 @@ async def analyze_skin(file: UploadFile = File(...), db: Session = Depends(get_d
         for p in top_products:
             p["reason"] = reason
 
+        if current_user:
+            db.add(AnalysisHistory(
+                id=str(uuid.uuid4()),
+                user_id=current_user["id"],
+                skin_scores=scores,
+                skin_type=skin_type,
+                analyzed_at=datetime.now(),
+            ))
+            db.commit()
+
         return {
             "skin_scores": scores,
             "skin_type": skin_type,
             "products": top_products,
             "analyzed_at": datetime.now().isoformat(),
             "landmarks": landmarks["landmarks"],
-            "image_size": landmarks["image_size"],  
+            "image_size": landmarks["image_size"],
         }
 
     except ValueError as e:

@@ -1,9 +1,10 @@
 import enum
 import uuid
 
-from sqlalchemy import Column, String, Float, Integer, JSON, Text, ForeignKey, Enum as SAEnum
+from sqlalchemy import Column, String, Float, Integer, JSON, Text, ForeignKey, Enum as SAEnum, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+from datetime import datetime
 
 Base = declarative_base()
 
@@ -60,6 +61,31 @@ class SkinProfile(Base):
     tone_max = Column(Float)
 
     skin_type = relationship("SkinType", back_populates="profiles")
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    google_id = Column(String, unique=True, nullable=False)
+    email = Column(String, unique=True, nullable=False)
+    name = Column(String)
+    profile_image = Column(String)
+    created_at = Column(DateTime, default=datetime.now)
+
+    analysis_history = relationship("AnalysisHistory", back_populates="user")
+
+
+class AnalysisHistory(Base):
+    __tablename__ = "analysis_history"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    skin_scores = Column(JSON)
+    skin_type = Column(String)
+    analyzed_at = Column(DateTime, default=datetime.now)
+
+    user = relationship("User", back_populates="analysis_history")
 
 
 class Product(Base):

@@ -133,7 +133,7 @@ def seed_skin_types(db):
             db.add(SkinProfile(id=str(uuid.uuid4()), **profile_data))
 
     db.commit()
-    print(f"{len(SKIN_TYPES)}개 피부 타입, {len(SKIN_PROFILES)}개 프로필 저장 완료!")
+    print(f"{len(SKIN_TYPES)}개 피부 타입, {len(SKIN_PROFILES)}개 profile 저장 완료!")
 
 
 def seed():
