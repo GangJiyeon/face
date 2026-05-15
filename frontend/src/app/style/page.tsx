@@ -1,198 +1,190 @@
 "use client"
 
-import { useState } from "react"
-import { Sparkles, Scan, Scissors, Palette, Bell, Check } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Scissors, Camera, ChevronRight } from "lucide-react"
 import { BottomNav } from "@/components/bottom-nav"
 import { DesktopSidebar } from "@/components/desktop-sidebar"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import Link from "next/link"
+import { getHistory, getHairstyleRecommendation } from "@/lib/api"
 
-const features = [
-  {
-    icon: Scan,
-    title: "Face Shape Analysis",
-    description: "AI-powered analysis to determine your unique face shape and proportions.",
-  },
-  {
-    icon: Scissors,
-    title: "Hairstyle Recommendations",
-    description: "Get personalized hairstyle suggestions that complement your face shape.",
-  },
-  {
-    icon: Palette,
-    title: "Color Palette Suggestions",
-    description: "Discover makeup and clothing colors that enhance your natural skin tone.",
-  },
-]
+interface HairstyleResult {
+  face_shape: string
+  face_shape_ko: string
+  description: string
+  styles: {
+    name_ko: string
+    reason: string
+    length: string
+    tags: string[]
+  }[]
+}
+
+const FACE_SHAPE_EMOJI: Record<string, string> = {
+  oval: "🥚",
+  round: "⭕",
+  square: "⬛",
+  heart: "🫀",
+  long: "📏",
+}
+
+const LENGTH_KO: Record<string, string> = {
+  short: "숏",
+  medium: "미디엄",
+  long: "롱",
+}
 
 export default function StylePage() {
-  const [showNotifyDialog, setShowNotifyDialog] = useState(false)
-  const [email, setEmail] = useState("")
-  const [isSubscribed, setIsSubscribed] = useState(false)
+  const [result, setResult] = useState<HairstyleResult | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<"no_history" | "no_login" | null>(null)
 
-  const handleSubscribe = () => {
-    if (email) {
-      setIsSubscribed(true)
-      setTimeout(() => {
-        setShowNotifyDialog(false)
-        setIsSubscribed(false)
-        setEmail("")
-      }, 2000)
-    }
-  }
+  useEffect(() => {
+    getHistory()
+      .then((history) => {
+        if (history.length === 0) {
+          setError("no_history")
+          return
+        }
+        const latest = history[0]
+        if (!latest.landmarks || latest.landmarks.length === 0) {
+          setError("no_history")
+          return
+        }
+        return getHairstyleRecommendation(latest.landmarks)
+      })
+      .then((data) => {
+        if (data) setResult(data)
+      })
+      .catch((e: Error) => {
+        if (e.message.includes("로그인")) setError("no_login")
+        else setError("no_history")
+      })
+      .finally(() => setLoading(false))
+  }, [])
+
+  if (loading) return (
+    <div className="flex min-h-screen bg-background">
+      <DesktopSidebar />
+      <div className="flex min-w-0 flex-1 flex-col items-center justify-center">
+        <div className="w-8 h-8 rounded-full border-2 border-[#C4B5FD] border-t-transparent animate-spin" />
+        <p className="text-sm text-muted-foreground mt-3">얼굴형 분석 중...</p>
+      </div>
+    </div>
+  )
+
+  if (error) return (
+    <div className="flex min-h-screen bg-background">
+      <DesktopSidebar />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b border-border">
+          <div className="px-4 py-4">
+            <h1 className="text-xl font-semibold text-foreground">Style Consultant</h1>
+          </div>
+        </header>
+        <main className="flex flex-1 flex-col items-center justify-center px-6 pb-24">
+          <div className="w-24 h-24 rounded-full bg-[#C4B5FD]/10 flex items-center justify-center mb-6">
+            <Scissors className="w-12 h-12 text-[#C4B5FD]" />
+          </div>
+          <h2 className="text-xl font-semibold text-foreground mb-2 text-center">
+            {error === "no_login" ? "로그인이 필요합니다" : "분석 기록이 없어요"}
+          </h2>
+          <p className="text-muted-foreground text-center mb-8 max-w-xs">
+            {error === "no_login"
+              ? "로그인 후 피부 분석을 진행하면 얼굴형 기반 헤어스타일을 추천받을 수 있어요."
+              : "먼저 피부 분석을 진행해주세요. 분석 결과를 바탕으로 얼굴형을 파악하고 헤어스타일을 추천해드려요."}
+          </p>
+          <Link href="/upload">
+            <Button className="bg-[#C4B5FD] hover:bg-[#C4B5FD]/90 text-white rounded-full px-8 py-6 text-base font-medium">
+              <Camera className="w-5 h-5 mr-2" />
+              분석 시작하기
+            </Button>
+          </Link>
+        </main>
+        <BottomNav activeTab="style" />
+      </div>
+    </div>
+  )
 
   return (
     <div className="flex min-h-screen bg-background">
       <DesktopSidebar />
       <div className="flex min-w-0 flex-1 flex-col pb-24">
-      <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b border-border">
-        <div className="px-4 py-4 flex items-center gap-3">
-          <h1 className="text-xl font-semibold text-foreground">Style Consultant</h1>
-          <span className="px-2.5 py-1 text-xs font-medium bg-[#C4B5FD] text-white rounded-full">
-            BETA
-          </span>
-        </div>
-      </header>
-
-      <main className="px-4 py-6 space-y-8">
-        {/* Coming Soon Hero */}
-        <div className="text-center py-8">
-          <div className="w-32 h-32 mx-auto mb-6 rounded-3xl bg-linear-to-br from-[#C4B5FD]/20 to-[#C4B5FD]/5 flex items-center justify-center relative overflow-hidden">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(196,181,253,0.3),transparent_50%)]" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_70%,rgba(196,181,253,0.2),transparent_50%)]" />
-            <Sparkles className="w-16 h-16 text-[#C4B5FD] relative z-10" />
+        <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b border-border">
+          <div className="px-4 py-4 flex items-center gap-3">
+            <h1 className="text-xl font-semibold text-foreground">Style Consultant</h1>
           </div>
-          <h2 className="text-2xl font-bold text-foreground mb-3 text-balance">
-            Your Personal Style Advisor
-          </h2>
-          <p className="text-muted-foreground max-w-xs mx-auto text-balance">
-            We&apos;re building something special. AI-powered style recommendations tailored just for you.
-          </p>
-        </div>
+        </header>
 
-        {/* Feature Preview Cards */}
-        <div className="space-y-4">
-          <h3 className="font-semibold text-foreground">What&apos;s Coming</h3>
-          <div className="space-y-3">
-            {features.map((feature, index) => (
-              <Card
-                key={index}
-                className="p-5 rounded-2xl border-border/50 shadow-sm bg-linear-to-br from-white to-[#C4B5FD]/5"
-              >
-                <div className="flex gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-[#C4B5FD]/15 flex items-center justify-center shrink-0">
-                    <feature.icon className="w-6 h-6 text-[#C4B5FD]" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h4 className="font-semibold text-foreground">{feature.title}</h4>
-                      <span className="px-2 py-0.5 text-[10px] font-medium bg-[#C4B5FD]/20 text-[#8B7DCF] rounded-full">
-                        Coming Soon
-                      </span>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      {feature.description}
-                    </p>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-
-        {/* Timeline Preview */}
-        <Card className="p-5 rounded-2xl border-border/50 shadow-sm">
-          <h3 className="font-semibold text-foreground mb-4">Development Timeline</h3>
-          <div className="space-y-4">
-            <div className="flex gap-4">
-              <div className="flex flex-col items-center">
-                <div className="w-3 h-3 rounded-full bg-[#C4B5FD]" />
-                <div className="w-0.5 h-full bg-[#C4B5FD]/30 mt-1" />
-              </div>
-              <div className="pb-4">
-                <p className="font-medium text-foreground text-sm">Face Shape Analysis</p>
-                <p className="text-xs text-muted-foreground">In Development</p>
-              </div>
-            </div>
-            <div className="flex gap-4">
-              <div className="flex flex-col items-center">
-                <div className="w-3 h-3 rounded-full bg-[#C4B5FD]/40" />
-                <div className="w-0.5 h-full bg-[#C4B5FD]/30 mt-1" />
-              </div>
-              <div className="pb-4">
-                <p className="font-medium text-foreground text-sm">Hairstyle AI</p>
-                <p className="text-xs text-muted-foreground">Planned for Q3 2026</p>
-              </div>
-            </div>
-            <div className="flex gap-4">
-              <div className="flex flex-col items-center">
-                <div className="w-3 h-3 rounded-full bg-[#C4B5FD]/20" />
+        <main className="px-4 py-6 space-y-6">
+          {/* 얼굴형 결과 카드 */}
+          <Card className="p-5 rounded-2xl border-border/50 shadow-sm bg-linear-to-br from-white to-[#C4B5FD]/5">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-2xl bg-[#C4B5FD]/15 flex items-center justify-center text-3xl shrink-0">
+                {FACE_SHAPE_EMOJI[result!.face_shape] ?? "✨"}
               </div>
               <div>
-                <p className="font-medium text-foreground text-sm">Color Analysis</p>
-                <p className="text-xs text-muted-foreground">Planned for Q4 2026</p>
+                <p className="text-xs text-muted-foreground mb-1">내 얼굴형</p>
+                <h2 className="text-2xl font-bold text-foreground">{result!.face_shape_ko}</h2>
+                <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+                  {result!.description}
+                </p>
               </div>
+            </div>
+          </Card>
+
+          {/* 추천 헤어스타일 목록 */}
+          <div>
+            <h2 className="font-semibold text-foreground mb-3">추천 헤어스타일</h2>
+            <div className="space-y-3">
+              {result!.styles.map((style, i) => (
+                <Card key={i} className="p-4 rounded-2xl border-border/50 shadow-sm">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-[#C4B5FD]/15 flex items-center justify-center shrink-0">
+                      <Scissors className="w-5 h-5 text-[#C4B5FD]" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-semibold text-foreground">{style.name_ko}</span>
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-[#C4B5FD]/10 text-[#8B7DCF]">
+                          {LENGTH_KO[style.length] ?? style.length}
+                        </span>
+                      </div>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {style.reason}
+                      </p>
+                      <div className="flex flex-wrap gap-1.5 mt-2">
+                        {style.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground"
+                          >
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              ))}
             </div>
           </div>
-        </Card>
 
-        {/* Notify Button */}
-        <Button
-          onClick={() => setShowNotifyDialog(true)}
-          variant="outline"
-          className="w-full py-6 rounded-full border-[#C4B5FD] text-[#8B7DCF] hover:bg-[#C4B5FD]/10 hover:text-[#8B7DCF] font-medium text-base"
-        >
-          <Bell className="w-5 h-5 mr-2" />
-          Get Notified When Ready
-        </Button>
-      </main>
+          {/* 다시 분석하기 */}
+          <Link href="/upload">
+            <Button
+              variant="outline"
+              className="w-full py-6 rounded-full border-[#C4B5FD] text-[#8B7DCF] hover:bg-[#C4B5FD]/10 font-medium text-base"
+            >
+              <Camera className="w-5 h-5 mr-2" />
+              새로 분석하기
+              <ChevronRight className="w-4 h-4 ml-auto" />
+            </Button>
+          </Link>
+        </main>
 
-      {/* Notification Dialog */}
-      <Dialog open={showNotifyDialog} onOpenChange={setShowNotifyDialog}>
-        <DialogContent className="sm:max-w-md mx-4 rounded-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-center">Get Early Access</DialogTitle>
-            <DialogDescription className="text-center">
-              Be the first to know when Style Consultant launches. We&apos;ll send you an email notification.
-            </DialogDescription>
-          </DialogHeader>
-          {isSubscribed ? (
-            <div className="flex flex-col items-center py-6">
-              <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
-                <Check className="w-8 h-8 text-green-600" />
-              </div>
-              <p className="font-medium text-foreground">You&apos;re on the list!</p>
-              <p className="text-sm text-muted-foreground">We&apos;ll notify you when it&apos;s ready.</p>
-            </div>
-          ) : (
-            <div className="space-y-4 py-4">
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="rounded-xl h-12"
-              />
-              <Button
-                onClick={handleSubscribe}
-                className="w-full bg-[#C4B5FD] hover:bg-[#C4B5FD]/90 text-white rounded-full py-6 font-medium"
-              >
-                Notify Me
-              </Button>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      <BottomNav activeTab="style" />
+        <BottomNav activeTab="style" />
       </div>
     </div>
   )
