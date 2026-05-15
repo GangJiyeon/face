@@ -1,11 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 import { useEffect } from "react"
 import { AnalyzeResponse } from "@/types/api"
 import { ChevronLeft, Calendar, Bookmark, LogIn, TrendingUp } from "lucide-react"
 import Link from "next/link"
+import { useAuth } from "@/hooks/useAuth"
 import {
   Radar,
   RadarChart,
@@ -88,20 +89,19 @@ function RecommendedProductCard({
 
 export default function ResultsPage() {
   const searchParams = useSearchParams()
+  const router = useRouter()
+  const { user } = useAuth()
   const [analysisData, setAnalysisData] = useState<AnalyzeResponse | null>(null)
   const [uploadedImage, setUploadedImage] = useState<string | null>(null)
-
-  const [isLoggedIn] = useState(false)
   const [showLoginDialog, setShowLoginDialog] = useState(false)
 
-  const faceLandmarks = analysisData?.landmarks?.map(([x, y]) => ({
-    x: (x / (analysisData.image_size?.width || 1)) * 100,
-    y: (y / (analysisData.image_size?.height || 1)) * 100,
-  })) || []
+
 
   
   const handleSave = () => {
-    if (!isLoggedIn) {
+    if (user) {
+      router.push("/history")
+    } else {
       setShowLoginDialog(true)
     }
   }
@@ -117,12 +117,17 @@ export default function ResultsPage() {
   useEffect(() => {
     const data = searchParams.get("data")
     if (data) {
-        try {
-          setAnalysisData(JSON.parse(data))
-        } catch (e) {
-          console.error("Failed to parse analysis data")
+      try {
+        const parsed = JSON.parse(data)
+        setAnalysisData(parsed)
+        if (parsed.image_url) {
+          setUploadedImage(parsed.image_url)
+          return
         }
+      } catch (e) {
+        console.error("Failed to parse analysis data")
       }
+    }
     const savedImage = sessionStorage.getItem('analysisImage')
     if (savedImage) {
       setUploadedImage(savedImage)
@@ -189,7 +194,7 @@ export default function ResultsPage() {
               className="hidden items-center gap-2 rounded-full border-[#F9A8C9] px-5 text-[#F9A8C9] hover:bg-[#F9A8C9]/10 hover:text-[#F9A8C9] lg:flex"
             >
               <Bookmark className="h-4 w-4" />
-              Save Results
+              {user ? "View History" : "Save Results"}
             </Button>
           </div>
         </header>
@@ -221,7 +226,7 @@ export default function ResultsPage() {
       )}
 
       {/* SVG 오버레이 */}
-      {uploadedImage && analysisData?.landmarks && (
+      {uploadedImage && analysisData?.landmarks && analysisData.landmarks.length > 0 && (
         <svg
           className="absolute inset-0 w-full h-full"
           viewBox={`0 0 ${analysisData.image_size.width} ${analysisData.image_size.height}`}
@@ -303,6 +308,16 @@ export default function ResultsPage() {
 
 
 
+              {/* Skin type badge - mobile only */}
+              {analysisData?.skin_type && (
+                <div className="flex items-center gap-2 lg:hidden">
+                  <span className="px-3 py-1 rounded-full text-xs font-medium bg-[#F9A8C9]/15 text-[#F9A8C9] capitalize">
+                    {analysisData.skin_type} skin
+                  </span>
+                  <span className="text-sm text-muted-foreground">Overall: <span className="font-semibold text-foreground">{overallScore}</span>/100</span>
+                </div>
+              )}
+
               {/* Score cards */}
               <div className="grid grid-cols-4 gap-2 lg:grid-cols-2 lg:gap-3">
                 {scoreMetrics.map((metric) => (
@@ -328,9 +343,11 @@ export default function ResultsPage() {
                       <span className="text-5xl font-bold text-foreground">{overallScore}</span>
                       <span className="text-lg text-muted-foreground">/100</span>
                     </div>
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      Good condition — keep up your routine!
-                    </p>
+                    {analysisData?.skin_type && (
+                      <span className="mt-2 inline-block px-3 py-1 rounded-full text-xs font-medium bg-white text-[#F9A8C9] shadow-sm capitalize">
+                        {analysisData.skin_type} skin
+                      </span>
+                    )}
                   </div>
                   <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white shadow-sm">
                     <TrendingUp className="h-9 w-9 text-[#F9A8C9]" />
@@ -397,7 +414,7 @@ export default function ResultsPage() {
                 className="w-full rounded-full border-[#F9A8C9] py-6 text-[#F9A8C9] hover:bg-[#F9A8C9]/10 hover:text-[#F9A8C9] lg:hidden"
               >
                 <Bookmark className="mr-2 h-5 w-5" />
-                Save Results
+                {user ? "View History" : "Save Results"}
               </Button>
             </div>
           </div>

@@ -1,4 +1,4 @@
-import uuid, os
+import uuid, os, shutil
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 from sqlalchemy.orm import Session
 from db.session import get_db
@@ -14,10 +14,43 @@ router = APIRouter()
 
 ALLOWED_TYPES = ["image/jpeg", "image/png", "image/heic", "image/webp"]
 MAX_SIZE = 10 * 1024 * 1024
+UPLOADS_DIR = os.path.join(os.path.dirname(__file__), "..", "uploads")
 
 @router.get("/")
 def analyze_health():
     return {"message": "analyze router ok"}
+
+@router.get("/history")
+def get_history(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    from fastapi import HTTPException
+    if not current_user:
+        raise HTTPException(status_code=401, detail="로그인이 필요합니다.")
+
+    from sqlalchemy import desc
+    records = (
+        db.query(AnalysisHistory)
+        .filter(AnalysisHistory.user_id == current_user["id"])
+        .order_by(desc(AnalysisHistory.analyzed_at))
+        .all()
+    )
+
+    base_url = "http://localhost:8000"
+    return [
+        {
+            "id": r.id,
+            "skin_type": r.skin_type,
+            "overall_score": round((r.skin_scores or {}).get("overall", 0), 1),
+            "skin_scores": r.skin_scores,
+            "analyzed_at": r.analyzed_at.isoformat(),
+            "image_url": f"{base_url}/uploads/{r.image_filename}" if r.image_filename else None,
+            "landmarks": r.landmarks or [],
+            "image_size": r.image_size or {"width": 1, "height": 1},
+        }
+        for r in records
+    ]
 
 @router.post("/")
 async def analyze_skin(
@@ -33,12 +66,15 @@ async def analyze_skin(
     if len(contents) > MAX_SIZE:
         raise HTTPException(status_code=400, detail="파일 크기는 10MB 이하여야 합니다.")
 
+    record_id = str(uuid.uuid4())
     suffix = os.path.splitext(file.filename)[1]
-    tmp_path = f"/tmp/{uuid.uuid4()}{suffix}"
+    tmp_path = f"/tmp/{record_id}{suffix}"
+    upload_filename = f"{record_id}{suffix}"
+    upload_path = os.path.join(UPLOADS_DIR, upload_filename)
 
     with open(tmp_path, "wb") as f:
         f.write(contents)
-    
+
     try:
         # 1. 랜드마크 추출
         landmarks = extract_landmarks(tmp_path)
@@ -104,11 +140,15 @@ async def analyze_skin(
             p["reason"] = reason
 
         if current_user:
+            shutil.copy2(tmp_path, upload_path)
             db.add(AnalysisHistory(
-                id=str(uuid.uuid4()),
+                id=record_id,
                 user_id=current_user["id"],
                 skin_scores=scores,
                 skin_type=skin_type,
+                image_filename=upload_filename,
+                landmarks=landmarks["landmarks"],
+                image_size=landmarks["image_size"],
                 analyzed_at=datetime.now(),
             ))
             db.commit()
