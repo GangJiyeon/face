@@ -1,136 +1,136 @@
 {
   "oval": {
-    "label_ko": "타원형",
-    "description_ko": "이상적인 비율의 얼굴형으로 대부분의 헤어스타일이 잘 어울립니다.",
+    "label": "Oval",
+    "description": "An ideally proportioned face shape that suits most hairstyles.",
     "styles": [
       {
-        "name": "레이어드 컷",
-        "name_ko": "레이어드 컷",
-        "reason": "자연스러운 볼륨감을 살려 균형 잡힌 얼굴을 더욱 돋보이게 합니다.",
+        "name": "Layered Cut",
+        "name": "Layered Cut",
+        "reason": "Natural volume enhances the balanced proportions of an oval face.",
         "length": "medium",
-        "tags": ["볼륨", "자연스러움", "versatile"]
+        "tags": ["volume", "natural", "versatile"]
       },
       {
-        "name": "웨이브 롱",
-        "name_ko": "웨이브 롱",
-        "reason": "부드러운 웨이브가 타원형 얼굴의 선을 따라 흘러 우아함을 강조합니다.",
+        "name": "Wavy Long",
+        "name": "Wavy Long",
+        "reason": "Soft waves flow along the lines of an oval face, adding elegance.",
         "length": "long",
-        "tags": ["우아함", "여성스러움", "볼륨"]
+        "tags": ["elegant", "feminine", "volume"]
       },
       {
-        "name": "숏 픽시컷",
-        "name_ko": "숏 픽시컷",
-        "reason": "균형 잡힌 이목구비를 그대로 드러내 세련된 인상을 줍니다.",
+        "name": "Short Pixie Cut",
+        "name": "Short Pixie Cut",
+        "reason": "Exposes the balanced features as-is, giving a chic impression.",
         "length": "short",
-        "tags": ["세련됨", "개성", "시크"]
+        "tags": ["chic", "bold", "stylish"]
       }
     ]
   },
   "round": {
-    "label_ko": "둥근형",
-    "description_ko": "얼굴 길이와 너비가 비슷한 타입으로 세로 방향으로 길어 보이는 스타일이 잘 어울립니다.",
+    "label": "Round",
+    "description": "A face shape where length and width are similar. Styles that elongate vertically work best.",
     "styles": [
       {
-        "name": "하이레이어드 롱",
-        "name_ko": "하이레이어드 롱",
-        "reason": "정수리 볼륨을 높여 얼굴이 길어 보이는 효과를 줍니다.",
+        "name": "High-Layered Long",
+        "name": "High-Layered Long",
+        "reason": "Crown volume makes the face appear longer and slimmer.",
         "length": "long",
-        "tags": ["슬림", "세로확장", "볼륨"]
+        "tags": ["slim", "elongating", "volume"]
       },
       {
-        "name": "사이드 파팅 스트레이트",
-        "name_ko": "사이드 파팅 스트레이트",
-        "reason": "옆 가르마로 얼굴 비대칭 효과를 줘 갸름해 보입니다.",
+        "name": "Side-Part Straight",
+        "name": "Side-Part Straight",
+        "reason": "A side part creates an asymmetric effect that slims the face.",
         "length": "medium",
-        "tags": ["갸름", "단정함", "깔끔"]
+        "tags": ["slimming", "neat", "clean"]
       },
       {
-        "name": "쉐기 컷",
-        "name_ko": "쉐기 컷",
-        "reason": "불규칙한 레이어가 얼굴 너비를 줄이고 세로 방향을 강조합니다.",
+        "name": "Shaggy Cut",
+        "name": "Shaggy Cut",
+        "reason": "Irregular layers reduce face width and emphasize the vertical line.",
         "length": "medium",
-        "tags": ["트렌디", "갸름", "개성"]
+        "tags": ["trendy", "slimming", "edgy"]
       }
     ]
   },
   "square": {
-    "label_ko": "각진형",
-    "description_ko": "이마·광대·턱의 너비가 비슷한 타입으로 부드럽고 곡선적인 스타일이 잘 어울립니다.",
+    "label": "Square",
+    "description": "A face shape where forehead, cheekbones, and jaw have similar widths. Soft, curved styles suit it best.",
     "styles": [
       {
-        "name": "소프트 웨이브 미디엄",
-        "name_ko": "소프트 웨이브 미디엄",
-        "reason": "부드러운 웨이브가 각진 턱선을 자연스럽게 감싸 여성스러운 인상을 줍니다.",
+        "name": "Soft Wave Medium",
+        "name": "Soft Wave Medium",
+        "reason": "Gentle waves naturally soften the angular jawline for a feminine look.",
         "length": "medium",
-        "tags": ["부드러움", "여성스러움", "커버"]
+        "tags": ["soft", "feminine", "coverage"]
       },
       {
-        "name": "사이드 뱅 롱",
-        "name_ko": "사이드 뱅 롱",
-        "reason": "사이드 뱅이 각진 이마 선을 가려 부드러운 인상을 만들어 줍니다.",
+        "name": "Side Bang Long",
+        "name": "Side Bang Long",
+        "reason": "Side bangs cover the angular forehead, creating a softer impression.",
         "length": "long",
-        "tags": ["커버", "부드러움", "여성스러움"]
+        "tags": ["coverage", "soft", "feminine"]
       },
       {
-        "name": "C컬 보브",
-        "name_ko": "C컬 보브",
-        "reason": "C컬이 턱선을 부드럽게 감싸 각진 인상을 완화시켜 줍니다.",
+        "name": "C-Curl Bob",
+        "name": "C-Curl Bob",
+        "reason": "C-curls wrap gently around the jawline, softening angular features.",
         "length": "short",
-        "tags": ["세련됨", "커버", "트렌디"]
+        "tags": ["chic", "coverage", "trendy"]
       }
     ]
   },
   "heart": {
-    "label_ko": "하트형",
-    "description_ko": "이마가 넓고 턱이 뾰족한 타입으로 아래쪽 볼륨을 강조하는 스타일이 잘 어울립니다.",
+    "label": "Heart",
+    "description": "A face shape with a wide forehead and pointed chin. Styles that add volume at the lower half work best.",
     "styles": [
       {
-        "name": "턱선 보브",
-        "name_ko": "턱선 보브",
-        "reason": "턱 선에서 끝나는 길이가 좁은 아래턱에 볼륨을 더해 균형을 맞춰줍니다.",
+        "name": "Chin-Length Bob",
+        "name": "Chin-Length Bob",
+        "reason": "Length that ends at the chin adds volume to the narrow jaw, balancing the face.",
         "length": "short",
-        "tags": ["균형", "볼륨", "귀여움"]
+        "tags": ["balance", "volume", "cute"]
       },
       {
-        "name": "사이드 파팅 웨이브",
-        "name_ko": "사이드 파팅 웨이브",
-        "reason": "옆 가르마로 넓은 이마를 커버하고, 웨이브가 아래 볼륨을 보완합니다.",
+        "name": "Side-Part Wave",
+        "name": "Side-Part Wave",
+        "reason": "A side part covers the wide forehead, while waves add volume at the lower face.",
         "length": "medium",
-        "tags": ["커버", "균형", "우아함"]
+        "tags": ["coverage", "balance", "elegant"]
       },
       {
-        "name": "레이어드 미디엄",
-        "name_ko": "레이어드 미디엄",
-        "reason": "아래쪽 레이어가 턱 주변 볼륨을 만들어 역삼각형을 자연스럽게 보완합니다.",
+        "name": "Layered Medium",
+        "name": "Layered Medium",
+        "reason": "Lower layers build volume around the jaw, naturally balancing the inverted triangle.",
         "length": "medium",
-        "tags": ["균형", "자연스러움", "볼륨"]
+        "tags": ["balance", "natural", "volume"]
       }
     ]
   },
   "long": {
-    "label_ko": "긴형",
-    "description_ko": "얼굴 길이가 너비보다 긴 타입으로 가로 방향으로 넓어 보이는 스타일이 잘 어울립니다.",
+    "label": "Long",
+    "description": "A face shape taller than it is wide. Styles that add width horizontally suit it best.",
     "styles": [
       {
-        "name": "볼륨 보브",
-        "name_ko": "볼륨 보브",
-        "reason": "양 옆 볼륨이 긴 얼굴에 가로 너비감을 주어 균형을 맞춰줍니다.",
+        "name": "Volume Bob",
+        "name": "Volume Bob",
+        "reason": "Side volume adds horizontal width to a long face, creating balance.",
         "length": "short",
-        "tags": ["균형", "볼륨", "귀여움"]
+        "tags": ["balance", "volume", "cute"]
       },
       {
-        "name": "뱅 미디엄",
-        "name_ko": "뱅 미디엄",
-        "reason": "앞머리가 긴 이마를 커버해 얼굴 세로 길이를 줄여주는 효과가 있습니다.",
+        "name": "Bang Medium",
+        "name": "Bang Medium",
+        "reason": "Bangs cover the long forehead, reducing the perceived vertical length of the face.",
         "length": "medium",
-        "tags": ["커버", "균형", "트렌디"]
+        "tags": ["coverage", "balance", "trendy"]
       },
       {
-        "name": "컬리 미디엄",
-        "name_ko": "컬리 미디엄",
-        "reason": "풍성한 컬이 가로 볼륨을 만들어 긴 얼굴을 균형있게 보이게 합니다.",
+        "name": "Curly Medium",
+        "name": "Curly Medium",
+        "reason": "Full curls create horizontal volume, making a long face look more balanced.",
         "length": "medium",
-        "tags": ["볼륨", "균형", "개성"]
+        "tags": ["volume", "balance", "bold"]
       }
     ]
   }

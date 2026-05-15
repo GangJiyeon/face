@@ -20,6 +20,20 @@ export async function analyzeImage(file: File): Promise<AnalyzeResponse> {
     return res.json()
 }
 
+export async function getMakeupRecommendation(skin_type: string, lighting_env: string) {
+    const res = await fetch(`${API_BASE_URL}/recommend/makeup`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ skin_type, lighting_env }),
+    })
+    if (!res.ok) {
+        const error = await res.json()
+        throw new Error(error.detail || 'Failed to get makeup recommendation')
+    }
+    return res.json()
+}
+
 export async function getHairstyleRecommendation(landmarks: [number, number][]) {
     const res = await fetch(`${API_BASE_URL}/recommend/hairstyle`, {
         method: 'POST',

@@ -12,5 +12,5 @@ sqlalchemy
 alembic
 python-jose[cryptography]
 httpx
-google-generativeai
+google-genai
 

@@ -7,8 +7,8 @@ def _dist(a, b) -> float:
 
 def classify_face_shape(landmarks: list) -> str:
     """
-    MediaPipe 468개 랜드마크로 얼굴형 분류.
-    반환값: "oval" | "round" | "square" | "heart" | "long"
+    Classify face shape from MediaPipe 468 landmarks.
+    Returns: "oval" | "round" | "square" | "heart" | "long"
     """
     if len(landmarks) < 468:
         return "oval"

@@ -57,7 +57,7 @@ export default function UploadPage() {
 
   const handleFile = useCallback((file: File) => {
   if (file && file.type.startsWith("image/")) {
-    setSelectedFile(file)  // 추가
+    setSelectedFile(file)
     const reader = new FileReader()
     reader.onload = (e) => setImage(e.target?.result as string)
     reader.readAsDataURL(file)
@@ -104,7 +104,7 @@ export default function UploadPage() {
 
       const file = selectedFile
     
-      // Step 2 - Skin analysis (실제 API 호출)
+      // Step 2 - Skin analysis (actual API call)
       setCurrentStep(1)
       setProgress(66)
     
@@ -115,7 +115,7 @@ export default function UploadPage() {
       setProgress(100)
 
       setTimeout(() => {
-        // 결과 페이지로 이동하면서 데이터 전달
+        // Navigate to result page with data
         const params = new URLSearchParams()
         params.set('data', JSON.stringify(result))
         window.location.href = `/result?${params.toString()}`

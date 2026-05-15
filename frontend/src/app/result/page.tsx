@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useEffect } from "react"
 import { AnalyzeResponse } from "@/types/api"
-import { ChevronLeft, Calendar, Bookmark, LogIn, TrendingUp } from "lucide-react"
+import { ChevronLeft, Calendar, Bookmark, LogIn, TrendingUp, Palette, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { useAuth } from "@/hooks/useAuth"
 import {
@@ -149,7 +149,7 @@ export default function ResultsPage() {
     { label: "Moisture", score: analysisData.skin_scores.moisture.score, color: "#93C5FD" },
   ] : []
 
-  // recommendedProducts 부분 교체
+  // Build recommended products list
   const recommendedProducts = analysisData?.products.map(p => ({
     id: p.id,
     name: p.name,
@@ -210,7 +210,7 @@ export default function ResultsPage() {
   <CardContent className="p-0">
     <div className="relative aspect-4/5 w-full bg-linear-to-br from-[#FDF2F8] to-[#F3E8FF] lg:aspect-3/4">
       
-      {/* 업로드 이미지 */}
+      {/* Uploaded image */}
       {uploadedImage ? (
         <img
           src={uploadedImage}
@@ -225,15 +225,15 @@ export default function ResultsPage() {
         </div>
       )}
 
-      {/* SVG 오버레이 */}
+      {/* SVG overlay */}
       {uploadedImage && analysisData?.landmarks && analysisData.landmarks.length > 0 && (
         <svg
           className="absolute inset-0 w-full h-full"
           viewBox={`0 0 ${analysisData.image_size.width} ${analysisData.image_size.height}`}
           preserveAspectRatio="xMidYMid slice"
         >
-          {/* ROI 영역별 반투명 색칠 */}
-          {/* 이마 영역 */}
+          {/* ROI region semi-transparent overlay */}
+          {/* Forehead region */}
           <polygon
             points={analysisData.landmarks ?
               [251,284,332,297,338,10,109,67,54,21,162,127,234,93,132,58,172,136,150,149,176,148,152,377,378,365,397,288,361,323,454,356,389].map(i =>
@@ -245,7 +245,7 @@ export default function ResultsPage() {
             strokeWidth="1"
             strokeOpacity="0.5"
           />
-          {/* 왼볼 */}
+          {/* Left cheek */}
           <polygon
             points={analysisData.landmarks ?
               [116,117,118,119,120,121,126,142,203].map(i =>
@@ -257,7 +257,7 @@ export default function ResultsPage() {
             strokeWidth="1"
             strokeOpacity="0.5"
           />
-          {/* 오른볼 */}
+          {/* Right cheek */}
           <polygon
             points={analysisData.landmarks ?
               [345,346,347,348,349,350,355,371,423].map(i =>
@@ -270,19 +270,19 @@ export default function ResultsPage() {
             strokeOpacity="0.5"
           />
           {[
-            // 코 중심
+            // Nose center
             1, 4, 5, 6, 195, 197, 168, 9, 8,
-            // 눈 주변
+            // Around eyes
             33, 133, 362, 263, 159, 145, 386, 374,
-            // 눈썹
+            // Eyebrows
             55, 285, 52, 282, 65, 295,
-            // 입 주변
+            // Around mouth
             61, 291, 17, 18, 200, 13, 14, 78, 308,
-            // 코 옆
+            // Nose sides
             48, 278, 219, 439,
-            // 이마
+            // Forehead
             151, 10, 338,
-            // 턱
+            // Chin
             152, 175, 176, 177, 178,
           ].map(i =>
             analysisData.landmarks[i] ? (
@@ -406,6 +406,24 @@ export default function ResultsPage() {
                   ))}
                 </div>
               </section>
+
+              {/* Makeup preview */}
+              {analysisData?.skin_type && (
+                <Link href="/style/makeup">
+                  <Card className="p-4 rounded-2xl border-border/50 shadow-sm bg-linear-to-br from-white to-[#F9A8C9]/5 hover:shadow-md transition-shadow">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-[#F9A8C9]/15 flex items-center justify-center shrink-0">
+                        <Palette className="w-5 h-5 text-[#F9A8C9]" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium text-foreground text-sm">Get Makeup Recommendation</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">Check the color palette matched to your lighting</p>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+                    </div>
+                  </Card>
+                </Link>
+              )}
 
               {/* Save button - mobile only */}
               <Button

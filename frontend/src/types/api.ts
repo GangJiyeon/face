@@ -1,25 +1,25 @@
-// 항목별 상태 타입
+// Per-metric status type
 export type SkinStatus = 'good' | 'caution' | 'bad'
 
-// 항목별 분석 결과
+// Per-metric analysis result
 export interface SkinMetric {
-  score: number        // 0~100 원본 점수
-  chart_score: number  // 레이더 차트용 정규화 점수 (높을수록 좋음)
+  score: number        // 0~100 raw score
+  chart_score: number  // normalized score for radar chart (higher = better)
   status: SkinStatus   // good / caution / bad
-  label: string        // 한국어 라벨 (예: "약간 붉음")
+  label: string        // English label (e.g. "Slightly red")
 }
 
-// 피부 분석 결과
+// Skin analysis scores
 export interface SkinScores {
   redness: SkinMetric
   tone: SkinMetric
   brightness: SkinMetric
   trouble: SkinMetric
   moisture: SkinMetric
-  overall: number      // 종합 점수
+  overall: number      // overall score
 }
 
-// 추천 제품
+// Recommended product
 export interface Product {
   id: string
   name: string
@@ -31,17 +31,17 @@ export interface Product {
   image_url?: string
 }
 
-// 분석 API 응답
+// Analyze API response
 export interface AnalyzeResponse {
   skin_scores: SkinScores
   skin_type: string
   products: Product[]
   analyzed_at: string
   landmarks: [number, number][]
-  image_size: { width: number, height: number } 
+  image_size: { width: number, height: number }
 }
 
-// 히스토리 항목
+// History item
 export interface HistoryItem {
   id: string
   skin_type: string
@@ -53,7 +53,7 @@ export interface HistoryItem {
   image_size: { width: number; height: number }
 }
 
-// 에러 응답
+// Error response
 export interface ApiError {
   detail: string
 }

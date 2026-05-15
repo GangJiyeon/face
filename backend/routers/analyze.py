@@ -27,7 +27,7 @@ def get_history(
 ):
     from fastapi import HTTPException
     if not current_user:
-        raise HTTPException(status_code=401, detail="로그인이 필요합니다.")
+        raise HTTPException(status_code=401, detail="Login required.")
 
     from sqlalchemy import desc
     records = (
@@ -60,11 +60,11 @@ async def analyze_skin(
 ):
 
     if file.content_type not in ALLOWED_TYPES:
-        raise HTTPException(status_code=400, detail="지원하지 않는 파일 형식입니다.")
-    
+        raise HTTPException(status_code=400, detail="Unsupported file type.")
+
     contents = await file.read()
     if len(contents) > MAX_SIZE:
-        raise HTTPException(status_code=400, detail="파일 크기는 10MB 이하여야 합니다.")
+        raise HTTPException(status_code=400, detail="File size must be 10MB or less.")
 
     record_id = str(uuid.uuid4())
     suffix = os.path.splitext(file.filename)[1]
@@ -76,20 +76,20 @@ async def analyze_skin(
         f.write(contents)
 
     try:
-        # 1. 랜드마크 추출
+        # 1. Extract landmarks
         landmarks = extract_landmarks(tmp_path)
-        
-        # 2. ROI 전처리
+
+        # 2. ROI preprocessing
         preprocessed = preprocess_roi(tmp_path, landmarks["roi_points"])
-        
-        # 3. 피부 점수화
+
+        # 3. Skin scoring
         scores = calculate_scores(preprocessed)
-        
-        # 4. 피부 타입 분류
+
+        # 4. Skin type classification
         from routers.recommend import classify_skin_type, RECOMMENDED_INGREDIENTS
         skin_type = classify_skin_type(scores)
-        
-        # 5. 제품 추천
+
+        # 5. Product recommendation
         avoid_conditions = [
             k for k, v in scores.items()
             if isinstance(v, dict) and v.get("status") == "bad"
@@ -99,10 +99,11 @@ async def analyze_skin(
         products = db.query(Product).all()
         scored_products = []
         for product in products:
-            # 카테고리 필터 추가
+            # Category filter
             category = (product.category or "").lower()
             if not any(c in category for c in ["skincare", "moisturizer", "serum", "toner", "sunscreen", "foundation", "bb cream", "face", "skin"]):
                 continue
+
 
             ingredients = product.ingredients or []
             avoid = product.avoid_conditions or []
@@ -134,7 +135,7 @@ async def analyze_skin(
         unique_products.sort(key=lambda x: x["match_score"], reverse=True)
         top_products = unique_products[:5]
         
-        # 6. Gemini 추천 이유 생성
+        # 6. Generate Gemini recommendation reason
         reason = generate_recommendation_reason(skin_type, scores, top_products)
         for p in top_products:
             p["reason"] = reason
