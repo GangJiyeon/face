@@ -1,8 +1,15 @@
+import json
+import os
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from db.session import get_db
 from db.models import Product
 from schemas.skin import SkinScores
+from pipeline.face_shape import classify_face_shape
+
+HAIRSTYLES_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "hairstyles.json")
+with open(HAIRSTYLES_PATH, encoding="utf-8") as f:
+    HAIRSTYLES_DATA = json.load(f)
 
 router = APIRouter()
 
@@ -92,4 +99,17 @@ def recommend_products(scores: dict, db: Session = Depends(get_db)):
     return {
         "skin_type": skin_type,
         "products": unique_products[:5],
+    }
+
+
+@router.post("/hairstyle")
+def recommend_hairstyle(body: dict):
+    landmarks = body.get("landmarks", [])
+    face_shape = classify_face_shape(landmarks)
+    data = HAIRSTYLES_DATA.get(face_shape, HAIRSTYLES_DATA["oval"])
+    return {
+        "face_shape": face_shape,
+        "face_shape_ko": data["label_ko"],
+        "description": data["description_ko"],
+        "styles": data["styles"],
     }

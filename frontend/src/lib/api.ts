@@ -20,6 +20,20 @@ export async function analyzeImage(file: File): Promise<AnalyzeResponse> {
     return res.json()
 }
 
+export async function getHairstyleRecommendation(landmarks: [number, number][]) {
+    const res = await fetch(`${API_BASE_URL}/recommend/hairstyle`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ landmarks }),
+    })
+    if (!res.ok) {
+        const error = await res.json()
+        throw new Error(error.detail || 'Failed to get hairstyle recommendation')
+    }
+    return res.json()
+}
+
 export async function getHistory(): Promise<HistoryItem[]> {
     const res = await fetch(`${API_BASE_URL}/analyze/history`, {
         credentials: 'include',
