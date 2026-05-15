@@ -83,6 +83,9 @@ class AnalysisHistory(Base):
     user_id = Column(String, ForeignKey("users.id"), nullable=False)
     skin_scores = Column(JSON)
     skin_type = Column(String)
+    image_filename = Column(String)
+    landmarks = Column(JSON)
+    image_size = Column(JSON)
     analyzed_at = Column(DateTime, default=datetime.now)
 
     user = relationship("User", back_populates="analysis_history")

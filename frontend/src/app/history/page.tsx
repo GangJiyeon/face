@@ -15,6 +15,7 @@ import { DesktopSidebar } from "@/components/desktop-sidebar"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { getHistory } from "@/lib/api"
 import { HistoryItem } from "@/types/api"
 
@@ -47,6 +48,7 @@ function getSkinTypeSummary(skin_type: string, overall_score: number): string {
 }
 
 export default function HistoryPage() {
+  const router = useRouter()
   const [history, setHistory] = useState<HistoryItem[]>([])
   const [loading, setLoading] = useState(true)
   const [isLoggedOut, setIsLoggedOut] = useState(false)
@@ -279,9 +281,24 @@ export default function HistoryPage() {
             <h2 className="font-semibold text-foreground mb-4">Recent Analyses</h2>
             <div className="space-y-3">
               {history.slice(0, 10).map((item) => (
-                <Card key={item.id} className="p-4 rounded-2xl border-border/50 shadow-sm">
+                <Card
+                  key={item.id}
+                  className="p-4 rounded-2xl border-border/50 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                  onClick={() => {
+                    const data = {
+                      skin_scores: item.skin_scores,
+                      skin_type: item.skin_type,
+                      products: [],
+                      analyzed_at: item.analyzed_at,
+                      image_url: item.image_url,
+                      landmarks: item.landmarks,
+                      image_size: item.image_size,
+                    }
+                    router.push(`/result?data=${encodeURIComponent(JSON.stringify(data))}`)
+                  }}
+                >
                   <div className="flex gap-4">
-                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#F9A8C9]/20 to-[#C4B5FD]/20 flex items-center justify-center flex-shrink-0">
+                    <div className="w-16 h-16 rounded-xl bg-linear-to-br from-[#F9A8C9]/20 to-[#C4B5FD]/20 flex items-center justify-center shrink-0">
                       <span className="text-xl font-bold text-[#F9A8C9]">{Math.round(item.overall_score)}</span>
                     </div>
                     <div className="flex-1 min-w-0">
