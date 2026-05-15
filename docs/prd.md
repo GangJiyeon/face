@@ -1,6 +1,6 @@
 # Product Requirements Document (PRD)
 
-**Project:** SKAI — AI-Powered Personalized Beauty Recommendation System
+**Project:** project — AI-Powered Personalized Beauty Recommendation System
 **Course:** Capstone Design 2026
 **Student:** 202330330 강지연
 
@@ -12,7 +12,7 @@
 Existing beauty recommendation services rely on fixed skin type surveys and fail to reflect daily changes in skin condition. Users cannot get personalized recommendations based on how their skin looks today.
 
 ### Solution
-SKAI uses facial image analysis and a custom CV pipeline to estimate the user's current skin condition and recommend suitable products based on ingredient compatibility data.
+project uses facial image analysis and a custom CV pipeline to estimate the user's current skin condition and recommend suitable products based on ingredient compatibility data.
 
 ### Core Direction
 - Do not rely solely on generic Vision APIs — build a custom face analysis pipeline

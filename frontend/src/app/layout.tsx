@@ -7,7 +7,7 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'SKAI - AI Skin Analysis',
+  title: 'project - AI Skin Analysis',
   description: 'Your personal AI-powered skin analysis companion',
   generator: 'v0.app',
   icons: {

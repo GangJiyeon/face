@@ -1,6 +1,6 @@
 # Information Architecture (IA)
 
-**Project:** SKAI
+**Project:** project
 **Version:** 1.0 (1st Semester MVP)
 
 ---
@@ -8,7 +8,7 @@
 ## 1. Site Map
 
 ```
-SKAI
+project
 ├── / (Home)
 │   ├── Today's skin summary card
 │   ├── Recommended products (horizontal scroll)
@@ -65,7 +65,7 @@ SKAI
 
 | Element | Content |
 |---------|---------|
-| Left | SKAI logo |
+| Left | project logo |
 | Center | Home / History / Style |
 | Right | Start Analysis button + Profile icon |
 
