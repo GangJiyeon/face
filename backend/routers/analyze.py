@@ -19,6 +19,34 @@ MAX_SIZE = 10 * 1024 * 1024
 def analyze_health():
     return {"message": "analyze router ok"}
 
+@router.get("/history")
+def get_history(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    from fastapi import HTTPException
+    if not current_user:
+        raise HTTPException(status_code=401, detail="로그인이 필요합니다.")
+
+    from sqlalchemy import desc
+    records = (
+        db.query(AnalysisHistory)
+        .filter(AnalysisHistory.user_id == current_user["id"])
+        .order_by(desc(AnalysisHistory.analyzed_at))
+        .all()
+    )
+
+    return [
+        {
+            "id": r.id,
+            "skin_type": r.skin_type,
+            "overall_score": round((r.skin_scores or {}).get("overall", 0), 1),
+            "skin_scores": r.skin_scores,
+            "analyzed_at": r.analyzed_at.isoformat(),
+        }
+        for r in records
+    ]
+
 @router.post("/")
 async def analyze_skin(
     file: UploadFile = File(...),

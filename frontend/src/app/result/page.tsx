@@ -1,11 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 import { useEffect } from "react"
 import { AnalyzeResponse } from "@/types/api"
 import { ChevronLeft, Calendar, Bookmark, LogIn, TrendingUp } from "lucide-react"
 import Link from "next/link"
+import { useAuth } from "@/hooks/useAuth"
 import {
   Radar,
   RadarChart,
@@ -88,10 +89,10 @@ function RecommendedProductCard({
 
 export default function ResultsPage() {
   const searchParams = useSearchParams()
+  const router = useRouter()
+  const { user } = useAuth()
   const [analysisData, setAnalysisData] = useState<AnalyzeResponse | null>(null)
   const [uploadedImage, setUploadedImage] = useState<string | null>(null)
-
-  const [isLoggedIn] = useState(false)
   const [showLoginDialog, setShowLoginDialog] = useState(false)
 
   const faceLandmarks = analysisData?.landmarks?.map(([x, y]) => ({
@@ -101,7 +102,9 @@ export default function ResultsPage() {
 
   
   const handleSave = () => {
-    if (!isLoggedIn) {
+    if (user) {
+      router.push("/history")
+    } else {
       setShowLoginDialog(true)
     }
   }
@@ -189,7 +192,7 @@ export default function ResultsPage() {
               className="hidden items-center gap-2 rounded-full border-[#F9A8C9] px-5 text-[#F9A8C9] hover:bg-[#F9A8C9]/10 hover:text-[#F9A8C9] lg:flex"
             >
               <Bookmark className="h-4 w-4" />
-              Save Results
+              {user ? "View History" : "Save Results"}
             </Button>
           </div>
         </header>
@@ -397,7 +400,7 @@ export default function ResultsPage() {
                 className="w-full rounded-full border-[#F9A8C9] py-6 text-[#F9A8C9] hover:bg-[#F9A8C9]/10 hover:text-[#F9A8C9] lg:hidden"
               >
                 <Bookmark className="mr-2 h-5 w-5" />
-                Save Results
+                {user ? "View History" : "Save Results"}
               </Button>
             </div>
           </div>

@@ -41,6 +41,15 @@ export interface AnalyzeResponse {
   image_size: { width: number, height: number } 
 }
 
+// 히스토리 항목
+export interface HistoryItem {
+  id: string
+  skin_type: string
+  overall_score: number
+  skin_scores: SkinScores
+  analyzed_at: string
+}
+
 // 에러 응답
 export interface ApiError {
   detail: string
