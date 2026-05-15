@@ -36,15 +36,15 @@ function formatDateLong(iso: string) {
 
 function getSkinTypeSummary(skin_type: string, overall_score: number): string {
   const typeMap: Record<string, string> = {
-    dry: "건조한 피부 상태입니다. 보습 관리에 신경써주세요.",
-    oily: "피지 분비가 활발합니다. 유분 조절이 필요합니다.",
-    sensitive: "피부 자극에 주의가 필요합니다. 진정 케어를 추천합니다.",
-    combination: "복합성 피부입니다. 부위별 맞춤 케어가 효과적입니다.",
+    dry: "Skin is dry. Focus on moisture management.",
+    oily: "Sebum production is high. Oil control is recommended.",
+    sensitive: "Skin is prone to irritation. Calming care is recommended.",
+    combination: "Combination skin. Zone-specific care is most effective.",
   }
-  const base = typeMap[skin_type] ?? "피부 분석이 완료되었습니다."
-  if (overall_score >= 75) return `컨디션이 좋습니다. ${base}`
-  if (overall_score >= 50) return `보통 컨디션입니다. ${base}`
-  return `관리가 필요한 상태입니다. ${base}`
+  const base = typeMap[skin_type] ?? "Skin analysis complete."
+  if (overall_score >= 75) return `Skin condition is good. ${base}`
+  if (overall_score >= 50) return `Skin condition is average. ${base}`
+  return `Skin needs attention. ${base}`
 }
 
 export default function HistoryPage() {
@@ -59,7 +59,7 @@ export default function HistoryPage() {
     getHistory()
       .then(setHistory)
       .catch((e: Error) => {
-        if (e.message.includes("로그인")) setIsLoggedOut(true)
+        if (e.message.includes("Login")) setIsLoggedOut(true)
       })
       .finally(() => setLoading(false))
   }, [])
@@ -73,7 +73,7 @@ export default function HistoryPage() {
     else setCurrentMonth(m => m + 1)
   }
 
-  // 현재 뷰 월의 분석 날짜 목록
+  // Analysis dates in current viewed month
   const daysWithAnalysis = history
     .filter(r => {
       const d = new Date(r.analyzed_at)
@@ -85,7 +85,7 @@ export default function HistoryPage() {
   const days = Array.from({ length: daysInMonth }, (_, i) => i + 1)
   const today = new Date()
 
-  // 차트용: 최신 10개, 날짜 오름차순
+  // Chart data: latest 10, ascending by date
   const chartData = [...history]
     .slice(0, 10)
     .reverse()
@@ -114,17 +114,17 @@ export default function HistoryPage() {
             <Calendar className="w-12 h-12 text-[#F9A8C9]" />
           </div>
           <h2 className="text-xl font-semibold text-foreground mb-2 text-center">
-            {isLoggedOut ? "로그인이 필요합니다" : "No History Yet"}
+            {isLoggedOut ? "Login required" : "No History Yet"}
           </h2>
           <p className="text-muted-foreground text-center mb-8 max-w-xs">
             {isLoggedOut
-              ? "히스토리를 보려면 로그인 후 분석을 진행해주세요."
+              ? "Please log in and complete an analysis to view your history."
               : "Start your first skin analysis to begin tracking your skin journey over time."}
           </p>
           <Link href="/upload">
             <Button className="bg-[#F9A8C9] hover:bg-[#F9A8C9]/90 text-white rounded-full px-8 py-6 text-base font-medium">
               <Camera className="w-5 h-5 mr-2" />
-              {isLoggedOut ? "분석 시작하기" : "Start First Analysis"}
+              {isLoggedOut ? "Start Analysis" : "Start First Analysis"}
             </Button>
           </Link>
         </main>

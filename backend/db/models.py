@@ -98,7 +98,7 @@ class Product(Base):
     name = Column(String, nullable=False)
     brand = Column(String)
     category = Column(String)
-    ingredients = Column(JSON)                  # 성분 리스트
-    avoid_conditions = Column(JSON)             # 회피 피부 컨디션
+    ingredients = Column(JSON)                  # ingredient list
+    avoid_conditions = Column(JSON)             # skin conditions to avoid
     image_url = Column(String)
-    suitable_skin_types = Column(JSON)          # 적합 피부 타입 ID 리스트
+    suitable_skin_types = Column(JSON)          # suitable skin type ID list

@@ -5,7 +5,7 @@ import numpy as np
 
 MODEL_PATH = "models/face_landmarker.task"
 
-# 랜드마크 인덱스 (MediaPipe 468개 중 주요 부위)
+# Landmark indices (key regions among MediaPipe's 468 landmarks)
 ROI_INDICES = {
     "forehead": [10, 67, 69, 104, 108, 151, 299, 337, 338],
     "left_cheek": [116, 117, 118, 119, 120, 121, 126, 142, 203],
@@ -25,24 +25,24 @@ def load_landmarker():
 def extract_landmarks(image_path: str) -> dict:
     landmarker = load_landmarker()
 
-    # 이미지 로드
+    # Load image
     mp_image = mp.Image.create_from_file(image_path)
     result = landmarker.detect(mp_image)
 
-    # 얼굴 미감지 처리
+    # Handle no face detected
     if not result.face_landmarks:
-        raise ValueError("얼굴을 감지할 수 없습니다.")
+        raise ValueError("No face detected in the image.")
 
     landmarks = result.face_landmarks[0]
     h, w = mp_image.height, mp_image.width
 
-    # 픽셀 좌표로 변환
+    # Convert to pixel coordinates
     points = [
         (int(lm.x * w), int(lm.y * h))
         for lm in landmarks
     ]
 
-    # 바운딩박스 추출
+    # Extract bounding box
     xs = [p[0] for p in points]
     ys = [p[1] for p in points]
     bbox = {
@@ -52,7 +52,7 @@ def extract_landmarks(image_path: str) -> dict:
         "y_max": max(ys),
     }
 
-    # ROI 좌표 추출
+    # Extract ROI coordinates
     roi_points = {
         region: [points[i] for i in indices]
         for region, indices in ROI_INDICES.items()

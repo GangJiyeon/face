@@ -11,13 +11,13 @@ from db.session import SessionLocal
 from db.models import Product, SkinType, SkinProfile, Base, Level
 from db.session import engine
 
-# 부적합 성분 리스트
+# Ingredients to avoid
 AVOID_INGREDIENTS = [
     "alcohol", "fragrance", "parfum", "sodium lauryl sulfate",
     "sodium laureth sulfate", "paraben", "formaldehyde"
 ]
 
-# 피부 컨디션별 회피 성분
+# Ingredients to avoid per skin condition
 CONDITION_AVOID = {
     "redness":    ["alcohol", "fragrance", "parfum"],
     "trouble":    ["sodium lauryl sulfate", "sodium laureth sulfate", "paraben"],
@@ -37,7 +37,7 @@ SKIN_TYPES = [
         "moisture_level": Level.low,
         "oil_level": Level.low,
         "sensitivity": Level.mid,
-        "description": "피부 수분이 부족하고 당김이 있는 건성 피부",
+        "description": "Dry skin with low moisture and a tight feeling.",
     },
     {
         "id": "oily",
@@ -45,7 +45,7 @@ SKIN_TYPES = [
         "moisture_level": Level.high,
         "oil_level": Level.high,
         "sensitivity": Level.low,
-        "description": "피지 분비가 많고 번들거리는 지성 피부",
+        "description": "Oily skin with high sebum production and a shiny appearance.",
     },
     {
         "id": "sensitive",
@@ -53,7 +53,7 @@ SKIN_TYPES = [
         "moisture_level": Level.mid,
         "oil_level": Level.mid,
         "sensitivity": Level.high,
-        "description": "외부 자극에 민감하게 반응하고 붉어짐이 잦은 민감성 피부",
+        "description": "Sensitive skin that reacts easily to external stimuli and frequently turns red.",
     },
     {
         "id": "combination",
@@ -61,7 +61,7 @@ SKIN_TYPES = [
         "moisture_level": Level.mid,
         "oil_level": Level.mid,
         "sensitivity": Level.low,
-        "description": "T존은 지성, 볼은 건성인 복합성 피부",
+        "description": "Combination skin: oily T-zone and dry cheeks.",
     },
 ]
 
@@ -133,7 +133,7 @@ def seed_skin_types(db):
             db.add(SkinProfile(id=str(uuid.uuid4()), **profile_data))
 
     db.commit()
-    print(f"{len(SKIN_TYPES)}개 피부 타입, {len(SKIN_PROFILES)}개 profile 저장 완료!")
+    print(f"Saved {len(SKIN_TYPES)} skin types and {len(SKIN_PROFILES)} profiles.")
 
 
 def seed():
@@ -146,7 +146,7 @@ def seed():
     with open("data/beauty.csv", encoding="utf-8", errors="ignore") as f:
         reader = csv.DictReader(f, delimiter="\t")
         for row in reader:
-            if count >= 500:  # 일단 500개만
+            if count >= 500:  # limit to 500 for now
                 break
 
             name = row.get("product_name", "").strip()
@@ -174,7 +174,7 @@ def seed():
 
     db.commit()
     db.close()
-    print(f"{count}개 제품 저장 완료!")
+    print(f"Saved {count} products.")
 
 if __name__ == "__main__":
     seed()

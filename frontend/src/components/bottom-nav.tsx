@@ -63,7 +63,7 @@ export function BottomNav() {
           badge="Beta"
         />
 
-        {/* Profile / login — href 분기 */}
+        {/* Profile / login — conditional href */}
         <Link
           href={profileHref}
           className="flex flex-col items-center gap-1 text-muted-foreground transition-colors"

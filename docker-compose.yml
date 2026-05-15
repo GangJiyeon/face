@@ -18,6 +18,7 @@ services:
     ports:
       - "3000:3000"
     command: sh -c "npm install && npm run dev"
+    restart: unless-stopped
 
   db:
     image: postgres:16

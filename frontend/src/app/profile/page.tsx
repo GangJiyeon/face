@@ -37,7 +37,7 @@ export default function ProfilePage() {
         </header>
 
         <main className="px-4 py-8 space-y-6">
-          {/* profile 카드 */}
+          {/* Profile card */}
           <div className="flex flex-col items-center gap-4 rounded-2xl border border-border/50 bg-white p-8 shadow-sm">
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#FDF2F8]">
               {user.picture ? (
@@ -59,7 +59,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* logout 버튼 */}
+          {/* Logout button */}
           <Button
             variant="outline"
             className="w-full rounded-xl py-6 text-sm font-medium text-muted-foreground"
