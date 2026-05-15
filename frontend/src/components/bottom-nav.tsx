@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation"
 import { Home, History, Camera, Sparkles, User } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import { useAuth } from "@/hooks/useAuth"
 
 interface NavItemProps {
   icon: React.ReactNode
@@ -38,12 +39,15 @@ function NavItem({ icon, label, href, badge }: NavItemProps) {
 }
 
 export function BottomNav() {
+  const { user } = useAuth()
+  const profileHref = user ? "/profile" : `${process.env.NEXT_PUBLIC_API_URL}/auth/login`
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border/50 bg-white/80 backdrop-blur-lg lg:hidden">
       <div className="mx-auto flex max-w-md items-center justify-around px-4 pb-6 pt-2">
         <NavItem icon={<Home className="h-5 w-5" />} label="Home" href="/" />
-        <NavItem icon={<History className="h-5 w-5" />} label="History" href="/history"/>
-        
+        <NavItem icon={<History className="h-5 w-5" />} label="History" href="/history" />
+
         {/* Center Camera Button */}
         <Link href="/upload">
           <button className="-mt-6 flex h-14 w-14 items-center justify-center rounded-full bg-[#F9A8C9] shadow-lg shadow-[#F9A8C9]/40 transition-transform hover:scale-105 active:scale-95">
@@ -51,14 +55,22 @@ export function BottomNav() {
             <span className="sr-only">Take Photo</span>
           </button>
         </Link>
-        
+
         <NavItem
           icon={<Sparkles className="h-5 w-5" />}
           label="Style"
           href="/style"
           badge="Beta"
         />
-        <NavItem icon={<User className="h-5 w-5" />} label="Profile" href="/profile"/>
+
+        {/* Profile / login — href 분기 */}
+        <Link
+          href={profileHref}
+          className="flex flex-col items-center gap-1 text-muted-foreground transition-colors"
+        >
+          <User className="h-5 w-5" />
+          <span className="text-[10px] font-medium">{user ? "profile" : "login"}</span>
+        </Link>
       </div>
     </nav>
   )
