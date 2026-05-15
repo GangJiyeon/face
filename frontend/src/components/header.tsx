@@ -7,7 +7,7 @@ export function Header() {
   return (
     <header className="flex items-center justify-between px-5 py-4">
       <h1 className="text-2xl font-bold tracking-tight text-foreground">
-        SKAI
+        project
       </h1>
       <Button variant="ghost" size="icon" className="relative">
         <Bell className="h-5 w-5 text-muted-foreground" />

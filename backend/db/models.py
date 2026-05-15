@@ -1,7 +1,66 @@
-from sqlalchemy import Column, String, Float, JSON, Text
+import enum
+import uuid
+
+from sqlalchemy import Column, String, Float, Integer, JSON, Text, ForeignKey, Enum as SAEnum
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 
 Base = declarative_base()
+
+
+class Level(str, enum.Enum):
+    low = "low"
+    mid = "mid"
+    high = "high"
+
+
+class SkinType(Base):
+    __tablename__ = "skin_types"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    name = Column(String, nullable=False, unique=True)          # e.g. "dry", "oily"
+    moisture_level = Column(SAEnum(Level), nullable=False)
+    oil_level = Column(SAEnum(Level), nullable=False)
+    sensitivity = Column(SAEnum(Level), nullable=False)
+    description = Column(Text)
+
+    profiles = relationship("SkinProfile", back_populates="skin_type")
+
+
+class SkinProfile(Base):
+    """Score-range thresholds that classify a set of skin scores into a SkinType.
+
+    NULL on any bound means "no constraint on that side".
+    Higher priority rows are evaluated first; first match wins.
+    """
+    __tablename__ = "skin_profiles"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    skin_type_id = Column(String, ForeignKey("skin_types.id"), nullable=False)
+    priority = Column(Integer, default=0, nullable=False)
+
+    # moisture_score (0–100, higher = more moist)
+    moisture_min = Column(Float)
+    moisture_max = Column(Float)
+
+    # redness_score (0–100, higher = more red)
+    redness_min = Column(Float)
+    redness_max = Column(Float)
+
+    # trouble_score (0–100, higher = more troubled)
+    trouble_min = Column(Float)
+    trouble_max = Column(Float)
+
+    # brightness_score (0–100, higher = brighter)
+    brightness_min = Column(Float)
+    brightness_max = Column(Float)
+
+    # tone_score (0–100, higher = more uniform)
+    tone_min = Column(Float)
+    tone_max = Column(Float)
+
+    skin_type = relationship("SkinType", back_populates="profiles")
+
 
 class Product(Base):
     __tablename__ = "products"
@@ -10,6 +69,7 @@ class Product(Base):
     name = Column(String, nullable=False)
     brand = Column(String)
     category = Column(String)
-    ingredients = Column(JSON)        # 성분 리스트
-    avoid_conditions = Column(JSON)   # 회피 피부 컨디션
-    image_url = Column(String)  
+    ingredients = Column(JSON)                  # 성분 리스트
+    avoid_conditions = Column(JSON)             # 회피 피부 컨디션
+    image_url = Column(String)
+    suitable_skin_types = Column(JSON)          # 적합 피부 타입 ID 리스트

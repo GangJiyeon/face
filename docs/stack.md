@@ -1,6 +1,6 @@
 # Tech Stack
 
-**Project:** SKAI
+**Project:** project
 **Version:** 1.0 (1st Semester MVP)
 
 ---

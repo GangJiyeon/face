@@ -48,7 +48,7 @@ main
 ## 프로젝트 구조
 
 ```
-skai/
+project/
 ├── backend/
 │   ├── routers/
 │   │   ├── analyze.py
@@ -68,9 +68,9 @@ skai/
 
 ---
 
-# SKAI — AI-Powered Personalized Beauty Recommendation System
+# project — AI-Powered Personalized Beauty Recommendation System
 
-SKAI analyzes facial images to estimate your skin condition and recommends suitable skincare and base makeup products based on ingredient data.
+project analyzes facial images to estimate your skin condition and recommends suitable skincare and base makeup products based on ingredient data.
 
 ## Features
 

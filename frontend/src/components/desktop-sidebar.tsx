@@ -43,7 +43,7 @@ export function DesktopSidebar() {
     <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:border-r lg:border-border/50 lg:bg-white">
       <div className="flex h-16 items-center px-6">
         <h1 className="text-2xl font-bold tracking-tight text-foreground">
-          SKAI
+          project
         </h1>
       </div>
 
