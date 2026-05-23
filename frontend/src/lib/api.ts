@@ -20,12 +20,12 @@ export async function analyzeImage(file: File): Promise<AnalyzeResponse> {
     return res.json()
 }
 
-export async function getMakeupRecommendation(skin_type: string, lighting_env: string) {
+export async function getMakeupRecommendation(skin_type: string, lighting_env: string, korean_only = false) {
     const res = await fetch(`${API_BASE_URL}/recommend/makeup`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ skin_type, lighting_env }),
+        body: JSON.stringify({ skin_type, lighting_env, korean_only }),
     })
     if (!res.ok) {
         const error = await res.json()
@@ -44,6 +44,20 @@ export async function getHairstyleRecommendation(landmarks: [number, number][]) 
     if (!res.ok) {
         const error = await res.json()
         throw new Error(error.detail || 'Failed to get hairstyle recommendation')
+    }
+    return res.json()
+}
+
+export async function getProductRecommendations(skinScores: object, koreanOnly = false) {
+    const res = await fetch(`${API_BASE_URL}/recommend/`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...skinScores, korean_only: koreanOnly }),
+    })
+    if (!res.ok) {
+        const error = await res.json()
+        throw new Error(error.detail || 'Failed to get product recommendations')
     }
     return res.json()
 }

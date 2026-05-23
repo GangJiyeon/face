@@ -50,7 +50,7 @@ project uses facial image analysis and a custom CV pipeline to estimate the user
 |---|---------|-------------|
 | 06 | Skin change tracking | Save daily skin records; visualize trends over time |
 | 07 | Vertex AI custom model | Train and deploy custom skin condition classification model |
-| 08 | Style consultant (Beta) | Face shape detection → hairstyle and color recommendations |
+| 08 | Style  (Beta) | Face shape detection → hairstyle and color recommendations |
 
 ---
 
@@ -93,7 +93,7 @@ Landing → Upload Photo → Analysis Loading → Result → Save Record → His
 ### 2nd Semester
 - Skin change trend visualization
 - Vertex AI custom model training and deployment
-- Style consultant feature full implementation
+- Style  feature full implementation
 
 ---
 
@@ -102,4 +102,4 @@ Landing → Upload Photo → Analysis Loading → Result → Save Record → His
 - IoT sensor integration (removed)
 - Payment or e-commerce functionality
 - Social features (sharing, comments)
-- Style consultant logic (UI shell only)
+- Style  logic (UI shell only)

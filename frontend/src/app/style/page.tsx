@@ -32,7 +32,7 @@ export default function StylePage() {
       <div className="flex min-w-0 flex-1 flex-col pb-24">
         <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b border-border">
           <div className="px-4 py-4 flex items-center gap-3">
-            <h1 className="text-xl font-semibold text-foreground">Style Consultant</h1>
+            <h1 className="text-xl font-semibold text-foreground">Style </h1>
           </div>
         </header>
 
@@ -43,7 +43,7 @@ export default function StylePage() {
           </div>
 
           {features.map((feature) => (
-            <Link key={feature.href} href={feature.href}>
+            <Link key={feature.href} href={feature.href} className="block">
               <Card className={`p-5 rounded-2xl border-border/50 shadow-sm bg-linear-to-br ${feature.bg} hover:shadow-md transition-shadow`}>
                 <div className="flex items-center gap-4">
                   <div
@@ -65,7 +65,7 @@ export default function StylePage() {
           ))}
         </main>
 
-        <BottomNav activeTab="style" />
+        <BottomNav />
       </div>
     </div>
   )

@@ -15,6 +15,8 @@ import {
   PolarRadiusAxis,
   ResponsiveContainer,
 } from "recharts"
+import { getProductRecommendations } from "@/lib/api"
+import { Product } from "@/types/api"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
@@ -94,6 +96,9 @@ export default function ResultsPage() {
   const [analysisData, setAnalysisData] = useState<AnalyzeResponse | null>(null)
   const [uploadedImage, setUploadedImage] = useState<string | null>(null)
   const [showLoginDialog, setShowLoginDialog] = useState(false)
+  const [koreanOnly, setKoreanOnly] = useState(false)
+  const [koreanProducts, setKoreanProducts] = useState<Product[] | null>(null)
+  const [koreanLoading, setKoreanLoading] = useState(false)
 
 
 
@@ -149,13 +154,23 @@ export default function ResultsPage() {
     { label: "Moisture", score: analysisData.skin_scores.moisture.score, color: "#93C5FD" },
   ] : []
 
+  useEffect(() => {
+    if (!koreanOnly || !analysisData) { setKoreanProducts(null); return }
+    setKoreanLoading(true)
+    getProductRecommendations(analysisData.skin_scores, true)
+      .then((data) => setKoreanProducts(data.products))
+      .catch(() => setKoreanProducts([]))
+      .finally(() => setKoreanLoading(false))
+  }, [koreanOnly, analysisData])
+
   // Build recommended products list
-  const recommendedProducts = analysisData?.products.map(p => ({
+  const sourceProducts = koreanOnly ? (koreanProducts ?? analysisData?.products ?? []) : (analysisData?.products ?? [])
+  const recommendedProducts = sourceProducts.map(p => ({
     id: p.id,
     name: p.name,
     image: p.image_url || "/placeholder.svg?height=120&width=120",
     reason: p.reason,
-  })) || []
+  }))
 
   const overallScore = analysisData ? Math.round(analysisData.skin_scores.overall) : 0
 
@@ -392,19 +407,40 @@ export default function ResultsPage() {
 
               {/* Recommended Products */}
               <section>
-                <h2 className="mb-4 text-base font-semibold text-foreground">
-                  Recommended for you
-                </h2>
-                <div className="flex flex-col gap-3">
-                  {recommendedProducts.map((product) => (
-                    <RecommendedProductCard
-                      key={product.id}
-                      name={product.name}
-                      image={product.image}
-                      reason={product.reason}
-                    />
-                  ))}
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-base font-semibold text-foreground">
+                    Recommended for you
+                  </h2>
+                  <button
+                    onClick={() => setKoreanOnly(v => !v)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                      koreanOnly
+                        ? "bg-[#F9A8C9] text-white"
+                        : "bg-muted text-muted-foreground hover:bg-[#F9A8C9]/10"
+                    }`}
+                  >
+                    🇰🇷 K-Beauty only
+                  </button>
                 </div>
+                {koreanLoading ? (
+                  <div className="flex justify-center py-8">
+                    <div className="w-7 h-7 rounded-full border-2 border-[#F9A8C9] border-t-transparent animate-spin" />
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-3">
+                    {recommendedProducts.map((product) => (
+                      <RecommendedProductCard
+                        key={product.id}
+                        name={product.name}
+                        image={product.image}
+                        reason={product.reason}
+                      />
+                    ))}
+                    {recommendedProducts.length === 0 && (
+                      <p className="text-center text-sm text-muted-foreground py-6">No matching products found.</p>
+                    )}
+                  </div>
+                )}
               </section>
 
               {/* Makeup preview */}

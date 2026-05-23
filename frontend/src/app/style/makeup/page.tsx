@@ -41,6 +41,7 @@ const PALETTE_LABELS: Record<keyof MakeupResult["palette"], string> = {
 export default function MakeupPage() {
   const [skinType, setSkinType] = useState<string | null>(null)
   const [lighting, setLighting] = useState("bright")
+  const [koreanOnly, setKoreanOnly] = useState(false)
   const [result, setResult] = useState<MakeupResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [initError, setInitError] = useState<"no_login" | "no_history" | null>(null)
@@ -61,10 +62,10 @@ export default function MakeupPage() {
   useEffect(() => {
     if (!skinType) return
     setLoading(true)
-    getMakeupRecommendation(skinType, lighting)
+    getMakeupRecommendation(skinType, lighting, koreanOnly)
       .then(setResult)
       .finally(() => setLoading(false))
-  }, [skinType, lighting])
+  }, [skinType, lighting, koreanOnly])
 
   if (initLoading) return (
     <div className="flex min-h-screen bg-background">
@@ -172,7 +173,19 @@ export default function MakeupPage() {
 
               {result.products.length > 0 && (
                 <div>
-                  <p className="text-sm font-medium text-foreground mb-3">Recommended Products</p>
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-sm font-medium text-foreground">Recommended Products</p>
+                    <button
+                      onClick={() => setKoreanOnly(v => !v)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                        koreanOnly
+                          ? "bg-[#F9A8C9] text-white"
+                          : "bg-muted text-muted-foreground hover:bg-[#F9A8C9]/10"
+                      }`}
+                    >
+                      🇰🇷 K-Beauty only
+                    </button>
+                  </div>
                   <div className="space-y-3">
                     {result.products.map((product) => (
                       <Card key={product.id} className="p-3 rounded-2xl border-border/50 shadow-sm">

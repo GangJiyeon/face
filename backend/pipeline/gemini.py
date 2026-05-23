@@ -9,7 +9,10 @@ _LIGHTING_EN = {"bright": "Bright Indoor", "dark": "Dark Environment", "outdoor"
 
 
 def _get_client():
-    return genai.Client(api_key=settings.gemini_api_key)
+    return genai.Client(
+        api_key=settings.gemini_api_key,
+        http_options={"timeout": 5},
+    )
 
 
 def generate_recommendation_reason(skin_type: str, scores: dict, products: list) -> str:

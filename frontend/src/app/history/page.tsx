@@ -106,7 +106,7 @@ export default function HistoryPage() {
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b border-border">
           <div className="px-4 py-4">
-            <h1 className="text-xl font-semibold text-foreground">My Skin Journey</h1>
+            <h1 className="text-xl font-semibold text-foreground">history</h1>
           </div>
         </header>
         <main className="flex flex-1 flex-col items-center justify-center px-6 pb-24">
@@ -150,7 +150,7 @@ export default function HistoryPage() {
       <div className="flex min-w-0 flex-1 flex-col pb-24">
         <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b border-border">
           <div className="px-4 py-4">
-            <h1 className="text-xl font-semibold text-foreground">My Skin Journey</h1>
+            <h1 className="text-xl font-semibold text-foreground">history</h1>
           </div>
         </header>
 

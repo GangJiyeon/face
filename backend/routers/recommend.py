@@ -20,6 +20,15 @@ router = APIRouter()
 
 ALLOWED_CATEGORIES = ["skincare", "moisturizer", "serum", "toner", "sunscreen", "foundation", "bb cream", "face", "skin"]
 
+KOREAN_BRANDS = {
+    "COSRX", "Innisfree", "Laneige", "Some By Mi", "Klairs", "Torriden",
+    "Beauty of Joseon", "Round Lab", "Anua", "Purito", "I'm From", "Abib",
+    "Numbuzin", "Skin1004", "Dr. Jart+", "Sulwhasoo", "Missha",
+    "Nature Republic", "Ma:nyo", "Etude House", "Mediheal", "TONYMOLY",
+    "Romand", "3CE", "Peripera", "Clio", "Espoir", "Dasique",
+    "Wakemake", "Holika Holika", "About Tone",
+}
+
 
 # Skin type classification
 def classify_skin_type(scores: dict) -> str:
@@ -48,6 +57,7 @@ RECOMMENDED_INGREDIENTS = {
 def recommend_products(scores: dict, db: Session = Depends(get_db)):
     skin_type = classify_skin_type(scores)
     recommended = RECOMMENDED_INGREDIENTS[skin_type]
+    korean_only = scores.get("korean_only", False)
 
     # Avoid conditions based on bad-status metrics
     avoid_conditions = [
@@ -60,6 +70,8 @@ def recommend_products(scores: dict, db: Session = Depends(get_db)):
 
     scored_products = []
     for product in products:
+        if korean_only and (product.brand or "") not in KOREAN_BRANDS:
+            continue
 
         # Category filter
         category = (product.category or "").lower()
@@ -119,8 +131,12 @@ def recommend_hairstyle(body: dict):
     }
 
 
-MAKEUP_CATEGORIES = ["foundation", "bb cream", "concealer", "blush", "cheek",
-                     "lipstick", "lip", "eyeshadow", "eye", "makeup", "colour", "color"]
+MAKEUP_BUCKETS = {
+    "foundation": ["foundation", "bb cream", "concealer"],
+    "lip":        ["lipstick", "lip"],
+    "eye":        ["eyeshadow", "eye"],
+    "blush":      ["blush", "cheek"],
+}
 
 @router.post("/makeup")
 def recommend_makeup(body: dict, db: Session = Depends(get_db)):
@@ -130,20 +146,32 @@ def recommend_makeup(body: dict, db: Session = Depends(get_db)):
     lighting_data = MAKEUP_DATA.get(lighting_env, MAKEUP_DATA["bright"])
     palette = lighting_data.get(skin_type, lighting_data["combination"])
 
-    # Fetch makeup-category products
+    korean_only = body.get("korean_only", False)
+
     products = db.query(Product).all()
-    makeup_products = []
+    bucketed: dict[str, list] = {k: [] for k in MAKEUP_BUCKETS}
+
     for p in products:
-        category = (p.category or "").lower()
-        if not any(c in category for c in MAKEUP_CATEGORIES):
+        if korean_only and (p.brand or "") not in KOREAN_BRANDS:
             continue
-        makeup_products.append({
-            "id": p.id,
-            "name": p.name,
-            "brand": p.brand,
-            "category": p.category,
-            "image_url": p.image_url,
-        })
+        cat = (p.category or "").lower()
+        if "skincare" in cat:
+            continue
+        for bucket, keywords in MAKEUP_BUCKETS.items():
+            if any(kw in cat for kw in keywords):
+                bucketed[bucket].append({
+                    "id": p.id,
+                    "name": p.name,
+                    "brand": p.brand,
+                    "category": p.category,
+                    "image_url": p.image_url,
+                })
+                break
+
+    # 2 products per category
+    makeup_products = []
+    for bucket in MAKEUP_BUCKETS:
+        makeup_products.extend(bucketed[bucket][:2])
 
     palette_colors = {
         "foundation": palette["foundation"],
@@ -158,5 +186,5 @@ def recommend_makeup(body: dict, db: Session = Depends(get_db)):
         "lighting_env": lighting_env,
         "palette": palette_colors,
         "tip": reason,
-        "products": makeup_products[:6],
+        "products": makeup_products,
     }

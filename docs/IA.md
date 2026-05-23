@@ -90,7 +90,7 @@ Home
             └→ /history — view past records + trend
 ```
 
-### Flow 3: Style Consultant (Beta Shell)
+### Flow 3: Style  (Beta Shell)
 ```
 Home or bottom nav
   └→ /style — view coming soon page
