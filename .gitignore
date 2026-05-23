@@ -1,0 +1,32 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment
+.env
+.env.*
+
+# Node
+node_modules/
+.next/
+frontend/.next/
+
+# Docker
+postgres_data/
+
+# Uploaded images (keep directory via .gitkeep)
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+models
+*.csv

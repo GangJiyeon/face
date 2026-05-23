@@ -1,0 +1,16 @@
+fastapi
+uvicorn[standard]
+psycopg2-binary
+python-dotenv
+boto3
+python-multipart
+anthropic
+mediapipe
+opencv-python-headless
+pydantic-settings==2.2.1
+sqlalchemy
+alembic
+python-jose[cryptography]
+httpx
+google-genai
+

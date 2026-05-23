@@ -1,0 +1,137 @@
+{
+  "oval": {
+    "label": "Oval",
+    "description": "An ideally proportioned face shape that suits most hairstyles.",
+    "styles": [
+      {
+        "name": "Layered Cut",
+        "name": "Layered Cut",
+        "reason": "Natural volume enhances the balanced proportions of an oval face.",
+        "length": "medium",
+        "tags": ["volume", "natural", "versatile"]
+      },
+      {
+        "name": "Wavy Long",
+        "name": "Wavy Long",
+        "reason": "Soft waves flow along the lines of an oval face, adding elegance.",
+        "length": "long",
+        "tags": ["elegant", "feminine", "volume"]
+      },
+      {
+        "name": "Short Pixie Cut",
+        "name": "Short Pixie Cut",
+        "reason": "Exposes the balanced features as-is, giving a chic impression.",
+        "length": "short",
+        "tags": ["chic", "bold", "stylish"]
+      }
+    ]
+  },
+  "round": {
+    "label": "Round",
+    "description": "A face shape where length and width are similar. Styles that elongate vertically work best.",
+    "styles": [
+      {
+        "name": "High-Layered Long",
+        "name": "High-Layered Long",
+        "reason": "Crown volume makes the face appear longer and slimmer.",
+        "length": "long",
+        "tags": ["slim", "elongating", "volume"]
+      },
+      {
+        "name": "Side-Part Straight",
+        "name": "Side-Part Straight",
+        "reason": "A side part creates an asymmetric effect that slims the face.",
+        "length": "medium",
+        "tags": ["slimming", "neat", "clean"]
+      },
+      {
+        "name": "Shaggy Cut",
+        "name": "Shaggy Cut",
+        "reason": "Irregular layers reduce face width and emphasize the vertical line.",
+        "length": "medium",
+        "tags": ["trendy", "slimming", "edgy"]
+      }
+    ]
+  },
+  "square": {
+    "label": "Square",
+    "description": "A face shape where forehead, cheekbones, and jaw have similar widths. Soft, curved styles suit it best.",
+    "styles": [
+      {
+        "name": "Soft Wave Medium",
+        "name": "Soft Wave Medium",
+        "reason": "Gentle waves naturally soften the angular jawline for a feminine look.",
+        "length": "medium",
+        "tags": ["soft", "feminine", "coverage"]
+      },
+      {
+        "name": "Side Bang Long",
+        "name": "Side Bang Long",
+        "reason": "Side bangs cover the angular forehead, creating a softer impression.",
+        "length": "long",
+        "tags": ["coverage", "soft", "feminine"]
+      },
+      {
+        "name": "C-Curl Bob",
+        "name": "C-Curl Bob",
+        "reason": "C-curls wrap gently around the jawline, softening angular features.",
+        "length": "short",
+        "tags": ["chic", "coverage", "trendy"]
+      }
+    ]
+  },
+  "heart": {
+    "label": "Heart",
+    "description": "A face shape with a wide forehead and pointed chin. Styles that add volume at the lower half work best.",
+    "styles": [
+      {
+        "name": "Chin-Length Bob",
+        "name": "Chin-Length Bob",
+        "reason": "Length that ends at the chin adds volume to the narrow jaw, balancing the face.",
+        "length": "short",
+        "tags": ["balance", "volume", "cute"]
+      },
+      {
+        "name": "Side-Part Wave",
+        "name": "Side-Part Wave",
+        "reason": "A side part covers the wide forehead, while waves add volume at the lower face.",
+        "length": "medium",
+        "tags": ["coverage", "balance", "elegant"]
+      },
+      {
+        "name": "Layered Medium",
+        "name": "Layered Medium",
+        "reason": "Lower layers build volume around the jaw, naturally balancing the inverted triangle.",
+        "length": "medium",
+        "tags": ["balance", "natural", "volume"]
+      }
+    ]
+  },
+  "long": {
+    "label": "Long",
+    "description": "A face shape taller than it is wide. Styles that add width horizontally suit it best.",
+    "styles": [
+      {
+        "name": "Volume Bob",
+        "name": "Volume Bob",
+        "reason": "Side volume adds horizontal width to a long face, creating balance.",
+        "length": "short",
+        "tags": ["balance", "volume", "cute"]
+      },
+      {
+        "name": "Bang Medium",
+        "name": "Bang Medium",
+        "reason": "Bangs cover the long forehead, reducing the perceived vertical length of the face.",
+        "length": "medium",
+        "tags": ["coverage", "balance", "trendy"]
+      },
+      {
+        "name": "Curly Medium",
+        "name": "Curly Medium",
+        "reason": "Full curls create horizontal volume, making a long face look more balanced.",
+        "length": "medium",
+        "tags": ["volume", "balance", "bold"]
+      }
+    ]
+  }
+}

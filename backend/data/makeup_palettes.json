@@ -1,0 +1,20 @@
+{
+  "bright": {
+    "dry":         { "foundation": "#F5DEB3", "blush": "#FFB6C1", "lip": "#FF6B8A", "eye": "#D4A5A5", "tip": "Use a dewy glow foundation for a radiant look, and add a pink blush for brightness." },
+    "oily":        { "foundation": "#E8C99A", "blush": "#FF8C69", "lip": "#C0392B", "eye": "#8B6F5E", "tip": "Control sebum with a matte foundation and finish cleanly with a nude lip." },
+    "sensitive":   { "foundation": "#F2DCC8", "blush": "#FADADD", "lip": "#E8A0A0", "eye": "#C8A882", "tip": "Use a fragrance-free mineral foundation and keep the look gentle with pastel tones." },
+    "combination": { "foundation": "#EDD5B3", "blush": "#FFB347", "lip": "#E05C6C", "eye": "#9B7B6A", "tip": "Apply matte foundation on the T-zone and a glow formula on the cheeks for zone-based control." }
+  },
+  "dark": {
+    "dry":         { "foundation": "#C8956C", "blush": "#8B4567", "lip": "#722F37", "eye": "#4A2040", "tip": "Use a hydrating serum foundation to prevent dryness and go dramatic with a deep burgundy lip." },
+    "oily":        { "foundation": "#B8864E", "blush": "#8B3A3A", "lip": "#6B1B1B", "eye": "#3D2B1F", "tip": "Boost staying power with a long-wear matte foundation and add depth with dark-tone eye shadow." },
+    "sensitive":   { "foundation": "#D4A882", "blush": "#B06070", "lip": "#9B4D5A", "eye": "#6B4C5E", "tip": "Choose low-irritation mineral products and keep the look subtle with a calm rose palette." },
+    "combination": { "foundation": "#C0956A", "blush": "#A0526A", "lip": "#8B2252", "eye": "#5C3A4A", "tip": "Focus on oil control by zone and complete a chic night look with cool-tone purple shades." }
+  },
+  "outdoor": {
+    "dry":         { "foundation": "#F0D0A0", "blush": "#FF9AA2", "lip": "#FF7F7F", "eye": "#B8860B", "tip": "SPF 50+ sun-care foundation is a must! Go for coral tones for a lively, healthy impression." },
+    "oily":        { "foundation": "#D4A870", "blush": "#FF7043", "lip": "#D84315", "eye": "#795548", "tip": "Stick to waterproof matte products and use earth tones for a natural, long-lasting outdoor look." },
+    "sensitive":   { "foundation": "#EED5B8", "blush": "#FFCCBC", "lip": "#FF8A65", "eye": "#A1887F", "tip": "Choose products with physical UV filters and go for a natural look that minimizes skin irritation." },
+    "combination": { "foundation": "#E0B888", "blush": "#FF8F00", "lip": "#E64A19", "eye": "#8D6E63", "tip": "Combine long-wear and SPF products for outdoor activities and complete an energetic look with coral-orange tones." }
+  }
+}
