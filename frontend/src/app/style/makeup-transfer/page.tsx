@@ -207,7 +207,7 @@ export default function MakeupTransferPage() {
           )}
         </main>
 
-        <BottomNav activeTab="style" />
+        <BottomNav />
       </div>
     </div>
   )

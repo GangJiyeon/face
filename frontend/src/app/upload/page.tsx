@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useCallback, useRef } from "react"
-import { ArrowLeft, Camera, Upload, Check, Loader2, Lightbulb } from "lucide-react"
+import { useState, useCallback, useRef, useEffect } from "react"
+import { ArrowLeft, Camera, Upload, Check, Loader2, Lightbulb, X, SwitchCamera } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils"
 import { DesktopSidebar } from "@/components/desktop-sidebar"
 import { BottomNav } from "@/components/bottom-nav"
 import { analyzeImage } from "@/lib/api"
+
 const ANALYSIS_STEPS = [
   { id: "detection", label: "Face detection" },
   { id: "analysis", label: "Skin analysis" },
@@ -52,17 +53,26 @@ export default function UploadPage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [currentStep, setCurrentStep] = useState(0)
   const [progress, setProgress] = useState(0)
-  const fileInputRef = useRef<HTMLInputElement>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
+  // Camera state
+  const [cameraOpen, setCameraOpen] = useState(false)
+  const [facingMode, setFacingMode] = useState<"user" | "environment">("user")
+  const [cameraError, setCameraError] = useState<string | null>(null)
+
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const streamRef = useRef<MediaStream | null>(null)
+
   const handleFile = useCallback((file: File) => {
-  if (file && file.type.startsWith("image/")) {
-    setSelectedFile(file)
-    const reader = new FileReader()
-    reader.onload = (e) => setImage(e.target?.result as string)
-    reader.readAsDataURL(file)
-  }
-}, [])
+    if (file && file.type.startsWith("image/")) {
+      setSelectedFile(file)
+      const reader = new FileReader()
+      reader.onload = (e) => setImage(e.target?.result as string)
+      reader.readAsDataURL(file)
+    }
+  }, [])
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -85,48 +95,107 @@ export default function UploadPage() {
     if (file) handleFile(file)
   }, [handleFile])
 
-  const startAnalysis = useCallback(async() => {
-    console.log("startAnalysis called")
-    console.log("file:", selectedFile)
+  // ── Camera ──
+
+  const stopStream = useCallback(() => {
+    streamRef.current?.getTracks().forEach((t) => t.stop())
+    streamRef.current = null
+  }, [])
+
+  const startCamera = useCallback(async (facing: "user" | "environment") => {
+    stopStream()
+    setCameraError(null)
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: facing, width: { ideal: 1280 }, height: { ideal: 720 } },
+      })
+      streamRef.current = stream
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream
+      }
+    } catch {
+      setCameraError("카메라에 접근할 수 없어요. 권한을 허용해주세요.")
+    }
+  }, [stopStream])
+
+  const closeCamera = useCallback(() => {
+    stopStream()
+    setCameraOpen(false)
+    setCameraError(null)
+  }, [stopStream])
+
+  const openCamera = useCallback(() => {
+    setCameraOpen(true)
+  }, [])
+
+  useEffect(() => {
+    if (cameraOpen) {
+      startCamera(facingMode)
+    }
+  }, [cameraOpen, facingMode, startCamera])
+
+  // cleanup on unmount
+  useEffect(() => () => stopStream(), [stopStream])
+
+  const flipCamera = useCallback(() => {
+    setFacingMode((prev) => (prev === "user" ? "environment" : "user"))
+  }, [])
+
+  const capturePhoto = useCallback(() => {
+    const video = videoRef.current
+    const canvas = canvasRef.current
+    if (!video || !canvas) return
+
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+    const ctx = canvas.getContext("2d")
+    if (!ctx) return
+
+    if (facingMode === "user") {
+      ctx.translate(canvas.width, 0)
+      ctx.scale(-1, 1)
+    }
+    ctx.drawImage(video, 0, 0)
+
+    canvas.toBlob((blob) => {
+      if (!blob) return
+      const file = new File([blob], "camera-photo.jpg", { type: "image/jpeg" })
+      handleFile(file)
+      closeCamera()
+    }, "image/jpeg", 0.92)
+  }, [facingMode, handleFile, closeCamera])
+
+  // ── Analysis ──
+
+  const startAnalysis = useCallback(async () => {
     if (!selectedFile) return
     setIsAnalyzing(true)
     setCurrentStep(0)
     setProgress(0)
 
     if (image) {
-      sessionStorage.setItem('analysisImage', image)
+      sessionStorage.setItem("analysisImage", image)
     }
-    try{
-      
-      // Step 1 - Face detection
+    try {
       setCurrentStep(0)
       setProgress(33)
-
-      const file = selectedFile
-    
-      // Step 2 - Skin analysis (actual API call)
       setCurrentStep(1)
       setProgress(66)
-    
-      const result = await analyzeImage(file)
-    
-      // Step 3 - Generating recommendations
+      const result = await analyzeImage(selectedFile)
       setCurrentStep(2)
       setProgress(100)
-
       setTimeout(() => {
-        // Navigate to result page with data
         const params = new URLSearchParams()
-        params.set('data', JSON.stringify(result))
+        params.set("data", JSON.stringify(result))
         window.location.href = `/result?${params.toString()}`
       }, 500)
     } catch (error) {
-    setIsAnalyzing(false)
-    setCurrentStep(0)
-    setProgress(0)
-    alert(error instanceof Error ? error.message : 'Analysis failed')
-  }
-  }, [[selectedFile, image]])
+      setIsAnalyzing(false)
+      setCurrentStep(0)
+      setProgress(0)
+      alert(error instanceof Error ? error.message : "Analysis failed")
+    }
+  }, [selectedFile, image])
 
   const clearImage = useCallback(() => {
     setImage(null)
@@ -163,32 +232,44 @@ export default function UploadPage() {
           <div className="p-4 lg:grid lg:grid-cols-[3fr_2fr] lg:gap-8 lg:p-8">
 
             {/* ── Left: Upload zone / Photo preview ── */}
-            {/* Hidden on mobile during analysis, always visible on desktop */}
             <div className={cn(isAnalyzing && "hidden lg:block")}>
               {!image ? (
                 <div
                   onDrop={handleDrop}
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
-                  onClick={() => fileInputRef.current?.click()}
                   className={cn(
-                    "relative flex min-h-80 cursor-pointer flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed p-8 transition-all duration-200 lg:min-h-130",
+                    "relative flex min-h-80 flex-col items-center justify-center gap-6 rounded-2xl border-2 border-dashed p-8 transition-all duration-200 lg:min-h-130",
                     isDragging
                       ? "border-[#F9A8C9] bg-[#F9A8C9]/10"
-                      : "border-border hover:border-[#F9A8C9]/50 hover:bg-muted/50"
+                      : "border-border"
                   )}
                 >
                   <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#F9A8C9]/10">
                     <Camera className="h-8 w-8 text-[#F9A8C9]" />
                   </div>
-                  <div className="text-center">
-                    <p className="mb-1 text-base font-medium text-foreground">Upload your photo</p>
-                    <p className="text-sm text-muted-foreground">JPG, PNG or HEIC (max 10MB)</p>
+                  <p className="text-sm text-muted-foreground">JPG, PNG or HEIC (max 10MB)</p>
+
+                  <div className="flex w-full max-w-xs flex-col gap-3">
+                    <Button
+                      onClick={openCamera}
+                      className="h-12 w-full rounded-xl bg-[#F9A8C9] text-white hover:bg-[#F9A8C9]/90"
+                    >
+                      <Camera className="mr-2 h-4 w-4" />
+                      Take Photo
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="h-12 w-full rounded-xl"
+                    >
+                      <Upload className="mr-2 h-4 w-4" />
+                      Upload from Gallery
+                    </Button>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Upload className="h-4 w-4" />
-                    <span>Drag and drop or click to select</span>
-                  </div>
+
+                  <p className="text-xs text-muted-foreground">or drag and drop a photo here</p>
+
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -241,7 +322,6 @@ export default function UploadPage() {
             <div className={cn("space-y-4 lg:space-y-6", !isAnalyzing && "mt-6 lg:mt-0")}>
               {!isAnalyzing ? (
                 <>
-                  {/* Tips card */}
                   <Card className="border-border/50 shadow-sm">
                     <CardContent className="p-5">
                       <div className="mb-3 flex items-center gap-2">
@@ -259,7 +339,6 @@ export default function UploadPage() {
                     </CardContent>
                   </Card>
 
-                  {/* Start Analysis Button */}
                   <Button
                     onClick={startAnalysis}
                     disabled={!image}
@@ -267,24 +346,10 @@ export default function UploadPage() {
                   >
                     Start Analysis
                   </Button>
-
-                  {/* Upload button shortcut on desktop when no image */}
-                  {!image && (
-                    <Button
-                      variant="outline"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="hidden h-12 w-full rounded-xl lg:flex"
-                    >
-                      <Upload className="mr-2 h-4 w-4" />
-                      Choose File
-                    </Button>
-                  )}
                 </>
               ) : (
-                /* Analyzing progress */
                 <div className="flex flex-col items-center justify-center py-8 lg:py-0">
                   <div className="w-full max-w-xs space-y-8">
-                    {/* Progress circle */}
                     <div className="flex justify-center">
                       <div className="relative h-24 w-24">
                         <svg className="h-24 w-24 -rotate-90" viewBox="0 0 100 100">
@@ -302,7 +367,6 @@ export default function UploadPage() {
                       </div>
                     </div>
 
-                    {/* Progress bar */}
                     <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
                       <div
                         className="h-full rounded-full bg-[#F9A8C9] transition-all duration-300"
@@ -310,7 +374,6 @@ export default function UploadPage() {
                       />
                     </div>
 
-                    {/* Steps */}
                     <div className="space-y-3">
                       {ANALYSIS_STEPS.map((step, index) => {
                         const isComplete = index < currentStep
@@ -356,6 +419,70 @@ export default function UploadPage() {
 
         <BottomNav />
       </div>
+
+      {/* ── Camera Modal ── */}
+      {cameraOpen && (
+        <div className="fixed inset-0 z-50 flex flex-col bg-black">
+          {/* Video */}
+          <div className="relative flex-1 overflow-hidden">
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className={cn(
+                "h-full w-full object-cover",
+                facingMode === "user" && "-scale-x-100"
+              )}
+            />
+            {/* Face guide overlay */}
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+              <div className="h-72 w-56 rounded-full border-2 border-white/50 lg:h-96 lg:w-72" />
+            </div>
+          </div>
+
+          {cameraError ? (
+            <div className="flex flex-col items-center gap-4 bg-black px-6 py-8 text-center">
+              <p className="text-sm text-white/70">{cameraError}</p>
+              <Button variant="outline" onClick={closeCamera} className="text-white border-white/30">
+                닫기
+              </Button>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between bg-black px-8 py-8">
+              {/* Close */}
+              <button
+                onClick={closeCamera}
+                className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10"
+                aria-label="Close camera"
+              >
+                <X className="h-6 w-6 text-white" />
+              </button>
+
+              {/* Capture */}
+              <button
+                onClick={capturePhoto}
+                className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-white/20 active:scale-95 transition-transform"
+                aria-label="Take photo"
+              >
+                <div className="h-14 w-14 rounded-full bg-white" />
+              </button>
+
+              {/* Flip camera */}
+              <button
+                onClick={flipCamera}
+                className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10"
+                aria-label="Flip camera"
+              >
+                <SwitchCamera className="h-6 w-6 text-white" />
+              </button>
+            </div>
+          )}
+
+          {/* Hidden canvas for capture */}
+          <canvas ref={canvasRef} className="hidden" />
+        </div>
+      )}
     </div>
   )
 }

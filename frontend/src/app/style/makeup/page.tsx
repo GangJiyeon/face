@@ -102,7 +102,7 @@ export default function MakeupPage() {
             </Button>
           </Link>
         </main>
-        <BottomNav activeTab="style" />
+        <BottomNav />
       </div>
     </div>
   )
@@ -211,7 +211,7 @@ export default function MakeupPage() {
           )}
         </main>
 
-        <BottomNav activeTab="style" />
+        <BottomNav />
       </div>
     </div>
   )
