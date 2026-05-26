@@ -102,7 +102,7 @@ export default function StylePage() {
             </Button>
           </Link>
         </main>
-        <BottomNav activeTab="style" />
+        <BottomNav />
       </div>
     </div>
   )
@@ -184,7 +184,7 @@ export default function StylePage() {
           </Link>
         </main>
 
-        <BottomNav activeTab="style" />
+        <BottomNav />
       </div>
     </div>
   )

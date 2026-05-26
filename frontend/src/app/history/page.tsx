@@ -128,7 +128,7 @@ export default function HistoryPage() {
             </Button>
           </Link>
         </main>
-        <BottomNav activeTab="history" />
+        <BottomNav />
       </div>
     </div>
   )
@@ -319,7 +319,7 @@ export default function HistoryPage() {
           </div>
         </main>
 
-        <BottomNav activeTab="history" />
+        <BottomNav />
       </div>
     </div>
   )
