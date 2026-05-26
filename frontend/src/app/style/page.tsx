@@ -1,6 +1,6 @@
 "use client"
 
-import { Scissors, Palette, ChevronRight, Sparkles } from "lucide-react"
+import { Scissors, Palette, ChevronRight, Sparkles, Wand2 } from "lucide-react"
 import { BottomNav } from "@/components/bottom-nav"
 import { DesktopSidebar } from "@/components/desktop-sidebar"
 import { Card } from "@/components/ui/card"
@@ -22,6 +22,14 @@ const features = [
     description: "Get a color palette matched to your lighting environment and skin type.",
     color: "#F9A8C9",
     bg: "from-white to-[#F9A8C9]/5",
+  },
+  {
+    href: "/style/makeup-transfer",
+    icon: Wand2,
+    title: "Celebrity Makeup Transfer",
+    description: "Transfer a celebrity's makeup style onto your face using AI.",
+    color: "#FDA4AF",
+    bg: "from-white to-[#FDA4AF]/5",
   },
 ]
 
