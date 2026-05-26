@@ -2,7 +2,7 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from routers import analyze, recommend, auth
+from routers import analyze, recommend, auth, style
 
 app = FastAPI(title='face')
 
@@ -21,6 +21,7 @@ app.add_middleware(
 app.include_router(analyze.router, prefix='/analyze', tags=['analyze'])
 app.include_router(recommend.router, prefix='/recommend', tags=['recommend'])
 app.include_router(auth.router, prefix='/auth', tags=['auth'])
+app.include_router(style.router, prefix='/style', tags=['style'])
 
 
 @app.get('/health')
