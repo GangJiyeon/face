@@ -35,16 +35,17 @@ function formatDateLong(iso: string) {
 }
 
 function getSkinTypeSummary(skin_type: string, overall_score: number): string {
-  const typeMap: Record<string, string> = {
-    dry: "Skin is dry. Focus on moisture management.",
-    oily: "Sebum production is high. Oil control is recommended.",
-    sensitive: "Skin is prone to irritation. Calming care is recommended.",
-    combination: "Combination skin. Zone-specific care is most effective.",
+  const taglines: Record<string, string> = {
+    dry: "Your skin is thirsty — moisture retention is the key to everything.",
+    oily: "Your skin is alive and active — the goal is balance, not elimination.",
+    sensitive: "Your skin speaks loudly — listen carefully and keep it calm.",
+    combination: "Two zones, one face — targeted zone-specific care is your greatest advantage.",
   }
-  const base = typeMap[skin_type] ?? "Skin analysis complete."
-  if (overall_score >= 75) return `Skin condition is good. ${base}`
-  if (overall_score >= 50) return `Skin condition is average. ${base}`
-  return `Skin needs attention. ${base}`
+  const condition =
+    overall_score >= 75 ? "Good condition." :
+    overall_score >= 50 ? "Moderate condition." :
+    "Needs attention."
+  return `${condition} ${taglines[skin_type] ?? "Skin analysis complete."}`
 }
 
 export default function HistoryPage() {
@@ -128,7 +129,7 @@ export default function HistoryPage() {
             </Button>
           </Link>
         </main>
-        <BottomNav activeTab="history" />
+        <BottomNav />
       </div>
     </div>
   )
@@ -319,7 +320,7 @@ export default function HistoryPage() {
           </div>
         </main>
 
-        <BottomNav activeTab="history" />
+        <BottomNav />
       </div>
     </div>
   )

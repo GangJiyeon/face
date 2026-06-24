@@ -2,7 +2,8 @@
 
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { User, Mail, LogOut } from "lucide-react"
+import { User, Mail, LogOut, Settings } from "lucide-react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { BottomNav } from "@/components/bottom-nav"
 import { DesktopSidebar } from "@/components/desktop-sidebar"
@@ -58,6 +59,17 @@ export default function ProfilePage() {
               </p>
             </div>
           </div>
+
+          {/* Settings link */}
+          <Link href="/settings">
+            <Button
+              variant="outline"
+              className="w-full rounded-xl py-6 text-sm font-medium text-muted-foreground"
+            >
+              <Settings className="mr-2 h-4 w-4" />
+              Settings
+            </Button>
+          </Link>
 
           {/* Logout button */}
           <Button

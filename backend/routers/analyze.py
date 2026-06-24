@@ -8,6 +8,7 @@ from pipeline.preprocess import preprocess_roi
 from pipeline.scoring import calculate_scores
 from pipeline.gemini import generate_recommendation_reason
 from core.auth import get_current_user
+from core.config import settings
 from datetime import datetime
 
 router = APIRouter()
@@ -37,7 +38,7 @@ def get_history(
         .all()
     )
 
-    base_url = "http://localhost:8000"
+    base_url = settings.backend_url
     return [
         {
             "id": r.id,
@@ -169,64 +170,3 @@ async def analyze_skin(
         if os.path.exists(tmp_path):
             os.remove(tmp_path)
 
-@router.post("/test-landmarks")
-async def test_landmarks(file: UploadFile = File(...)):
-    contents = await file.read()
-    
-    tmp_path = f"/tmp/{uuid.uuid4()}.jpg"
-    with open(tmp_path, "wb") as f:
-        f.write(contents)
-    
-    try:
-        result = extract_landmarks(tmp_path)
-        return result
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    finally:
-        if os.path.exists(tmp_path):
-            os.remove(tmp_path)
-
-
-
-@router.post("/test-preprocess")
-async def test_preprocess(file: UploadFile = File(...)):
-    contents = await file.read()
-    
-    tmp_path = f"/tmp/{uuid.uuid4()}.jpg"
-    with open(tmp_path, "wb") as f:
-        f.write(contents)
-    
-    try:
-        from pipeline.face import extract_landmarks
-        landmarks = extract_landmarks(tmp_path)
-        roi_result = preprocess_roi(tmp_path, landmarks["roi_points"])
-        
-        return {
-            "regions": list(roi_result.keys()),
-            "message": "preprocess ok"
-        }
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    finally:
-        if os.path.exists(tmp_path):
-            os.remove(tmp_path)
-
-
-from pipeline.scoring import calculate_scores
-
-@router.post("/test-scores")
-async def test_scores(file: UploadFile = File(...)):
-    contents = await file.read()
-    tmp_path = f"/tmp/{uuid.uuid4()}.jpg"
-    with open(tmp_path, "wb") as f:
-        f.write(contents)
-    try:
-        landmarks = extract_landmarks(tmp_path)
-        preprocessed = preprocess_roi(tmp_path, landmarks["roi_points"])
-        scores = calculate_scores(preprocessed)
-        return scores
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    finally:
-        if os.path.exists(tmp_path):
-            os.remove(tmp_path)

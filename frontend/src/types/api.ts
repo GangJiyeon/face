@@ -53,6 +53,11 @@ export interface HistoryItem {
   image_size: { width: number; height: number }
 }
 
+// Makeup transfer response
+export interface MakeupTransferResponse {
+  result_url: string
+}
+
 // Error response
 export interface ApiError {
   detail: string
