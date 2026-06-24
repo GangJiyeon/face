@@ -1,6 +1,6 @@
 # Information Architecture (IA)
 
-**Project:** project
+**Project:** SKAI
 **Version:** 1.0 (1st Semester MVP)
 
 ---
@@ -8,13 +8,13 @@
 ## 1. Site Map
 
 ```
-project
+SKAI
 ├── / (Home)
 │   ├── Today's skin summary card
 │   ├── Recommended products (horizontal scroll)
 │   └── Start Analysis CTA
 │
-├── /analyze (Camera — center tab)
+├── /upload (Camera — center tab)
 │   ├── Photo upload (drag & drop / file select)
 │   ├── Image preview
 │   ├── Loading (Face detection → Skin analysis → Generating recommendations)
@@ -23,9 +23,9 @@ project
 ├── /result (Analysis Result)
 │   ├── Face image with landmark overlay
 │   ├── Skin condition radar chart (Redness, Tone, Brightness, Moisture, Trouble)
-│   ├── Score cards (4 metrics)
+│   ├── Score cards (5 metrics)
 │   ├── Recommended products list
-│   ├── Recommendation reason (Claude API)
+│   ├── Recommendation reason (Gemini)
 │   └── Save Results CTA (→ login prompt for guests)
 │
 ├── /history (History)
@@ -34,17 +34,20 @@ project
 │   ├── Recent analysis cards
 │   └── Empty state (CTA to first analysis)
 │
-├── /style (Style — Beta)
-│   ├── Beta badge
-│   ├── Coming soon hero
-│   └── Feature preview cards
-│       ├── Face shape analysis
-│       ├── Hairstyle recommendations
-│       └── Color palette suggestions
+├── /style (AI Style Studio)
+│   ├── /style/makeup-transfer — celebrity makeup synthesis (Gemini)
+│   ├── /style/hair-transfer — celebrity hairstyle synthesis (Gemini)
+│   ├── /style/hair-styling — face-shape hair styling (Gemini)
+│   ├── /style/makeup — color palette recommendation
+│   └── Coming soon: real-time makeup overlay (Beta)
 │
-└── /profile (Profile)
-    ├── Login prompt (1st semester shell)
-    └── App settings
+├── /profile (Profile)
+│   ├── User info (Google account)
+│   └── Analysis stats
+│
+└── /settings (Settings)
+    ├── Account management
+    └── Delete account
 ```
 
 ---
@@ -57,17 +60,17 @@ project
 |-----|------|--------|--------|
 | Home | Grid | / | Active |
 | History | Clock | /history | Active |
-| Analyze | Camera (pink floating) | /analyze | Active |
-| Style | Sparkle | /style | Beta |
-| Profile | Person | /profile | Shell |
+| Upload | Camera (pink floating) | /upload | Active |
+| Style | Sparkle | /style | Active (Beta badge) |
+| Profile | Person | /profile | Active |
 
-### Desktop — Top Header
+### Desktop — Sidebar
 
 | Element | Content |
 |---------|---------|
-| Left | project logo |
-| Center | Home / History / Style |
-| Right | Start Analysis button + Profile icon |
+| Top | SKAI logo |
+| Nav | Home / History / Upload / Style / Profile |
+| Bottom | Account / Settings |
 
 ---
 
@@ -77,7 +80,7 @@ project
 ```
 Home
   └→ Tap camera button
-       └→ /analyze — upload photo
+       └→ /upload — upload photo
             └→ Loading screen (3 steps)
                  └→ /result — view skin score + recommendations
 ```
@@ -90,11 +93,12 @@ Home
             └→ /history — view past records + trend
 ```
 
-### Flow 3: Style  (Beta Shell)
+### Flow 3: AI Style Studio
 ```
 Home or bottom nav
-  └→ /style — view coming soon page
-       └→ "Get notified" CTA
+  └→ /style — choose a feature
+       └→ Upload photo (+ reference image)
+            └→ Gemini synthesis → view result
 ```
 
 ---
@@ -108,7 +112,7 @@ Home or bottom nav
 - `<AnalysisCTA>` — pink button
 - `<BottomNav>`
 
-### Analyze (/analyze)
+### Upload (/upload)
 - `<PageHeader>` — back arrow + title
 - `<UploadZone>` — drag & drop, preview
 - `<AnalysisButton>` — full width pink
@@ -117,10 +121,10 @@ Home or bottom nav
 ### Result (/result)
 - `<PageHeader>`
 - `<FaceImageCard>` — image + landmark dots overlay
-- `<RadarChart>` — 5-axis skin score (recharts or d3)
-- `<ScoreCards>` — 4 metric cards
+- `<RadarChart>` — 5-axis skin score (recharts)
+- `<ScoreCards>` — 5 metric cards
 - `<ProductList>` — recommended product cards
-- `<RecommendationReason>` — Claude API text
+- `<RecommendationReason>` — Gemini text
 - `<SaveButton>`
 - `<BottomNav>`
 

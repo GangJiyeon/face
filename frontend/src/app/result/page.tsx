@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useEffect } from "react"
 import { AnalyzeResponse } from "@/types/api"
-import { ChevronLeft, Calendar, Bookmark, LogIn, TrendingUp, Palette, ChevronRight } from "lucide-react"
+import { ChevronLeft, Calendar, Bookmark, LogIn, TrendingUp, ChevronRight, Scissors, Wand2, Sparkles } from "lucide-react"
 import Link from "next/link"
 import { useAuth } from "@/hooks/useAuth"
 import {
@@ -15,10 +15,11 @@ import {
   PolarRadiusAxis,
   ResponsiveContainer,
 } from "recharts"
-import { getProductRecommendations } from "@/lib/api"
+import { getProductRecommendations, getMakeupRecommendation, getHairstyleRecommendation } from "@/lib/api"
 import { Product } from "@/types/api"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { SkinTypeDetail } from "@/components/skin-type-detail"
 import {
   Dialog,
   DialogContent,
@@ -100,6 +101,21 @@ export default function ResultsPage() {
   const [koreanProducts, setKoreanProducts] = useState<Product[] | null>(null)
   const [koreanLoading, setKoreanLoading] = useState(false)
 
+  const [lighting, setLighting] = useState("bright")
+  const [makeupResult, setMakeupResult] = useState<{
+    palette: { foundation: string; blush: string; lip: string; eye: string }
+    tip: string
+    products: { id: string; name: string; brand: string; category: string; image_url: string | null }[]
+  } | null>(null)
+  const [makeupLoading, setMakeupLoading] = useState(false)
+
+  const [hairstyleResult, setHairstyleResult] = useState<{
+    face_shape: string
+    face_shape_label: string
+    styles: { name: string; reason: string; length: string }[]
+  } | null>(null)
+  const [hairstyleLoading, setHairstyleLoading] = useState(false)
+
 
 
   
@@ -112,11 +128,14 @@ export default function ResultsPage() {
   }
 
 
-  const today = new Date().toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  })
+  const [today, setToday] = useState("")
+  useEffect(() => {
+    setToday(new Date().toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }))
+  }, [])
 
   
   useEffect(() => {
@@ -125,6 +144,9 @@ export default function ResultsPage() {
       try {
         const parsed = JSON.parse(data)
         setAnalysisData(parsed)
+        if (parsed.landmarks?.length) {
+          sessionStorage.setItem('analysisLandmarks', JSON.stringify(parsed.landmarks))
+        }
         if (parsed.image_url) {
           setUploadedImage(parsed.image_url)
           return
@@ -162,6 +184,24 @@ export default function ResultsPage() {
       .catch(() => setKoreanProducts([]))
       .finally(() => setKoreanLoading(false))
   }, [koreanOnly, analysisData])
+
+  useEffect(() => {
+    if (!analysisData?.skin_type) return
+    setMakeupLoading(true)
+    getMakeupRecommendation(analysisData.skin_type, lighting)
+      .then((data) => setMakeupResult({ palette: data.palette, tip: data.tip, products: data.products ?? [] }))
+      .catch(() => {})
+      .finally(() => setMakeupLoading(false))
+  }, [analysisData, lighting])
+
+  useEffect(() => {
+    if (!analysisData?.landmarks?.length) return
+    setHairstyleLoading(true)
+    getHairstyleRecommendation(analysisData.landmarks)
+      .then(setHairstyleResult)
+      .catch(() => {})
+      .finally(() => setHairstyleLoading(false))
+  }, [analysisData])
 
   // Build recommended products list
   const sourceProducts = koreanOnly ? (koreanProducts ?? analysisData?.products ?? []) : (analysisData?.products ?? [])
@@ -405,6 +445,14 @@ export default function ResultsPage() {
                 </CardContent>
               </Card>
 
+              {/* Skin type detail */}
+              {analysisData?.skin_type && analysisData?.skin_scores && (
+                <SkinTypeDetail
+                  skinType={analysisData.skin_type}
+                  scores={analysisData.skin_scores}
+                />
+              )}
+
               {/* Recommended Products */}
               <section>
                 <div className="flex items-center justify-between mb-4">
@@ -443,23 +491,117 @@ export default function ResultsPage() {
                 )}
               </section>
 
-              {/* Makeup preview */}
-              {analysisData?.skin_type && (
-                <Link href="/style/makeup">
-                  <Card className="p-4 rounded-2xl border-border/50 shadow-sm bg-linear-to-br from-white to-[#F9A8C9]/5 hover:shadow-md transition-shadow">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-[#F9A8C9]/15 flex items-center justify-center shrink-0">
-                        <Palette className="w-5 h-5 text-[#F9A8C9]" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium text-foreground text-sm">Get Makeup Recommendation</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">Check the color palette matched to your lighting</p>
-                      </div>
-                      <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+              {/* Makeup palette */}
+              <section>
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-base font-semibold text-foreground">Color Palette</h2>
+                  <div className="flex gap-1.5">
+                    {[
+                      { key: "bright", emoji: "💡" },
+                      { key: "dark", emoji: "🌙" },
+                      { key: "outdoor", emoji: "☀️" },
+                    ].map((opt) => (
+                      <button
+                        key={opt.key}
+                        onClick={() => setLighting(opt.key)}
+                        className={`w-8 h-8 rounded-full text-sm transition-all ${
+                          lighting === opt.key
+                            ? "bg-[#F9A8C9] shadow-sm"
+                            : "bg-muted hover:bg-[#F9A8C9]/20"
+                        }`}
+                      >
+                        {opt.emoji}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {makeupLoading ? (
+                  <div className="flex justify-center py-6">
+                    <div className="w-6 h-6 rounded-full border-2 border-[#F9A8C9] border-t-transparent animate-spin" />
+                  </div>
+                ) : makeupResult && (
+                  <Card className="p-4 rounded-2xl border-border/50 shadow-sm bg-linear-to-br from-white to-[#F9A8C9]/5">
+                    <div className="grid grid-cols-4 gap-3 mb-4">
+                      {(Object.entries(makeupResult.palette) as [string, string][]).map(([key, hex]) => (
+                        <div key={key} className="flex flex-col items-center gap-1.5">
+                          <div className="w-12 h-12 rounded-xl shadow-sm border border-border/30" style={{ backgroundColor: hex }} />
+                          <span className="text-[10px] text-muted-foreground capitalize">{key}</span>
+                        </div>
+                      ))}
                     </div>
+                    {makeupResult.tip && (
+                      <p className="text-xs text-muted-foreground leading-relaxed mb-3">{makeupResult.tip}</p>
+                    )}
+                    {makeupResult.products.length > 0 && (
+                      <div className="mb-3 space-y-2">
+                        {makeupResult.products.map((p) => (
+                          <div key={p.id} className="flex items-center gap-3">
+                            <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-muted">
+                              <img
+                                src={p.image_url || "/placeholder.svg?height=40&width=40"}
+                                alt={p.name}
+                                className="h-full w-full object-cover"
+                              />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="truncate text-xs font-medium text-foreground">{p.name}</p>
+                              <p className="truncate text-[10px] text-muted-foreground">{p.brand} · {p.category}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <Link href="/style/makeup-transfer">
+                      <button className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#F9A8C9]/10 text-[#F9A8C9] text-sm font-medium hover:bg-[#F9A8C9]/20 transition-colors">
+                        <Wand2 className="w-4 h-4" />
+                        Try Makeup Transfer
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
+                    </Link>
                   </Card>
-                </Link>
-              )}
+                )}
+              </section>
+
+              {/* Hairstyle recommendation */}
+              <section>
+                <h2 className="text-base font-semibold text-foreground mb-3">Hairstyle Recommendation</h2>
+
+                {hairstyleLoading ? (
+                  <div className="flex justify-center py-6">
+                    <div className="w-6 h-6 rounded-full border-2 border-[#C4B5FD] border-t-transparent animate-spin" />
+                  </div>
+                ) : hairstyleResult ? (
+                  <Card className="p-4 rounded-2xl border-border/50 shadow-sm bg-linear-to-br from-white to-[#C4B5FD]/5">
+                    <p className="text-xs text-muted-foreground mb-1">Face Shape</p>
+                    <p className="font-semibold text-foreground mb-3">{hairstyleResult.face_shape_label}</p>
+                    <div className="space-y-2 mb-4">
+                      {hairstyleResult.styles.slice(0, 3).map((style, i) => (
+                        <div key={i} className="flex items-start gap-2">
+                          <div className="w-5 h-5 rounded-full bg-[#C4B5FD]/20 flex items-center justify-center shrink-0 mt-0.5">
+                            <Scissors className="w-3 h-3 text-[#C4B5FD]" />
+                          </div>
+                          <div>
+                            <span className="text-sm font-medium text-foreground">{style.name}</span>
+                            <p className="text-xs text-muted-foreground">{style.reason}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <Link href="/style">
+                      <button className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#C4B5FD]/10 text-[#8B7DCF] text-sm font-medium hover:bg-[#C4B5FD]/20 transition-colors">
+                        <Sparkles className="w-4 h-4" />
+                        Try Hair Styling
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
+                    </Link>
+                  </Card>
+                ) : (
+                  <Card className="p-4 rounded-2xl border-border/50 shadow-sm">
+                    <p className="text-sm text-muted-foreground text-center py-2">No landmark data available.</p>
+                  </Card>
+                )}
+              </section>
 
               {/* Save button - mobile only */}
               <Button
@@ -490,7 +632,10 @@ export default function ResultsPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="mt-4 flex flex-col gap-3">
-            <Button className="w-full rounded-full bg-[#F9A8C9] py-6 text-white hover:bg-[#F9A8C9]/90">
+            <Button
+              className="w-full rounded-full bg-[#F9A8C9] py-6 text-white hover:bg-[#F9A8C9]/90"
+              onClick={() => { window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/auth/login` }}
+            >
               Sign In
             </Button>
             <Button

@@ -17,7 +17,8 @@ TRANSFER_PROMPT = (
     "The first photo is a celebrity. The second photo is a user. "
     "Apply the makeup style from the celebrity photo (foundation tone, blush, eye shadow, eyeliner, lip color) "
     "to the user's face in the second photo. "
-    "Preserve the user's facial structure, skin tone base, and identity exactly. "
+    "Preserve the user's facial structure, face shape, skin tone base, hair, and identity exactly. "
+    "Do not change the user's eye color, hair, clothing, or background. "
     "Only change the makeup. Return the edited face photo."
 )
 
@@ -41,14 +42,16 @@ async def transfer_makeup(user_image_path: str, celebrity_image_path: str) -> st
     try:
         response = await asyncio.wait_for(
             client.aio.models.generate_content(
-                model="gemini-2.5-flash-image",
+                model="gemini-3.1-flash-image",
                 contents=[
-                    types.Part.from_bytes(data=celebrity_bytes, mime_type=_mime(celebrity_image_path)),
-                    types.Part.from_bytes(data=user_bytes, mime_type=_mime(user_image_path)),
-                    TRANSFER_PROMPT,
+                    types.Content(role="user", parts=[
+                        types.Part.from_bytes(data=celebrity_bytes, mime_type=_mime(celebrity_image_path)),
+                        types.Part.from_bytes(data=user_bytes, mime_type=_mime(user_image_path)),
+                        types.Part(text=TRANSFER_PROMPT),
+                    ])
                 ],
                 config=types.GenerateContentConfig(
-                    response_modalities=["image", "text"],
+                    response_modalities=["IMAGE", "TEXT"],
                 ),
             ),
             timeout=300.0,

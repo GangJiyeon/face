@@ -1,15 +1,15 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { Sparkles, Upload, ChevronLeft, X, ImageIcon } from "lucide-react"
+import { Scissors, Upload, ChevronLeft, X, ImageIcon } from "lucide-react"
 import { BottomNav } from "@/components/bottom-nav"
 import { DesktopSidebar } from "@/components/desktop-sidebar"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import Link from "next/link"
-import { transferMakeup } from "@/lib/api"
+import { transferHair } from "@/lib/api"
 
-const ACCENT = "#FDA4AF"
+const ACCENT = "#C4B5FD"
 
 interface ImageSlot {
   file: File | null
@@ -60,10 +60,10 @@ function ImageUploadZone({
             const file = e.dataTransfer.files[0]
             if (file) handleFile(file)
           }}
-          className="aspect-square rounded-2xl border-2 border-dashed border-border hover:border-[#FDA4AF]/60 bg-muted/30 hover:bg-[#FDA4AF]/5 transition-all flex flex-col items-center justify-center gap-2"
+          className="aspect-square rounded-2xl border-2 border-dashed border-border hover:border-[#C4B5FD]/60 bg-muted/30 hover:bg-[#C4B5FD]/5 transition-all flex flex-col items-center justify-center gap-2"
         >
-          <div className="w-12 h-12 rounded-full bg-[#FDA4AF]/10 flex items-center justify-center">
-            <Upload className="w-5 h-5 text-[#FDA4AF]" />
+          <div className="w-12 h-12 rounded-full bg-[#C4B5FD]/10 flex items-center justify-center">
+            <Upload className="w-5 h-5 text-[#C4B5FD]" />
           </div>
           <span className="text-xs text-muted-foreground">Select or drag a photo</span>
         </button>
@@ -84,7 +84,7 @@ function ImageUploadZone({
   )
 }
 
-export default function MakeupTransferPage() {
+export default function HairTransferPage() {
   const [celebrity, setCelebrity] = useState<ImageSlot>({ file: null, preview: null })
   const [userFace, setUserFace] = useState<ImageSlot>({ file: null, preview: null })
   const [resultUrl, setResultUrl] = useState<string | null>(null)
@@ -112,7 +112,7 @@ export default function MakeupTransferPage() {
     setError(null)
     setResultUrl(null)
     try {
-      const res = await transferMakeup(userFace.file, celebrity.file)
+      const res = await transferHair(userFace.file, celebrity.file)
       setResultUrl(res.result_url)
     } catch (e) {
       setError(e instanceof Error ? e.message : "Transfer failed. Please try again.")
@@ -128,28 +128,27 @@ export default function MakeupTransferPage() {
         <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b border-border">
           <div className="px-4 py-4 flex items-center gap-3">
             <Link href="/style"><ChevronLeft className="w-5 h-5 text-muted-foreground" /></Link>
-            <h1 className="text-xl font-semibold text-foreground">Celebrity Makeup Transfer</h1>
+            <h1 className="text-xl font-semibold text-foreground">Celebrity Hairstyle Transfer</h1>
           </div>
         </header>
 
         <main className="px-4 py-6 space-y-6 lg:max-w-4xl lg:mx-auto">
           <p className="text-sm text-muted-foreground">
-            Transfer a celebrity's makeup style onto your photo using AI.
+            Apply a celebrity's hairstyle to your photo with AI.
           </p>
 
-          {/* Upload zones */}
           <Card className="p-4 rounded-2xl border-border/50 shadow-sm">
             <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
               <ImageUploadZone
                 label="Celebrity Photo"
-                hint="Upload a celebrity photo to use as the makeup reference."
+                hint="Upload a celebrity photo to use as the hairstyle reference."
                 slot={celebrity}
                 onSelect={selectFile(setCelebrity)}
                 onClear={clearFile(setCelebrity, celebrity)}
               />
               <ImageUploadZone
                 label="Your Photo"
-                hint="Upload a photo of your face to apply the makeup to."
+                hint="Upload a photo of your face to apply the hairstyle to."
                 slot={userFace}
                 onSelect={selectFile(setUserFace)}
                 onClear={clearFile(setUserFace, userFace)}
@@ -157,7 +156,6 @@ export default function MakeupTransferPage() {
             </div>
           </Card>
 
-          {/* Transfer button */}
           <Button
             onClick={handleTransfer}
             disabled={!canTransfer}
@@ -171,35 +169,28 @@ export default function MakeupTransferPage() {
               </span>
             ) : (
               <span className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5" />
-                Apply Makeup
+                <Scissors className="w-5 h-5" />
+                Apply Hairstyle
               </span>
             )}
           </Button>
 
-          {/* Error */}
           {error && (
             <Card className="p-4 rounded-2xl border-red-200 bg-red-50 text-sm text-red-600">
               {error}
             </Card>
           )}
 
-          {/* Result */}
           {resultUrl && (
             <div className="space-y-3">
               <p className="text-sm font-medium text-foreground">Result</p>
               <Card className="rounded-2xl overflow-hidden border-border/50 shadow-sm">
-                <img src={resultUrl} alt="Makeup transfer result" className="w-full object-cover" />
+                <img src={resultUrl} alt="Hair transfer result" className="w-full object-cover" />
               </Card>
-              <a
-                href={resultUrl}
-                download="makeup-transfer.png"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a href={resultUrl} download="hair-transfer.png" target="_blank" rel="noopener noreferrer">
                 <Button
                   variant="outline"
-                  className="w-full rounded-full py-5 border-[#FDA4AF] text-[#FDA4AF] hover:bg-[#FDA4AF]/10"
+                  className="w-full rounded-full py-5 border-[#C4B5FD] text-[#8B7DCF] hover:bg-[#C4B5FD]/10"
                 >
                   <ImageIcon className="w-4 h-4 mr-2" />
                   Save Image

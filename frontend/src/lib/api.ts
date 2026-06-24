@@ -87,6 +87,65 @@ export async function transferMakeup(
     return data
 }
 
+export async function transferHair(
+    userImage: File,
+    celebrityImage: File,
+): Promise<{ result_url: string }> {
+    const formData = new FormData()
+    formData.append('user_image', userImage)
+    formData.append('celebrity_image', celebrityImage)
+
+    const res = await fetch(`${API_BASE_URL}/style/hair-transfer`, {
+        method: 'POST',
+        body: formData,
+    })
+    if (!res.ok) {
+        const error = await res.json()
+        throw new Error(error.detail || 'Hair transfer failed')
+    }
+    const data = await res.json()
+    if (data.result_url.startsWith('/')) {
+        data.result_url = `${API_BASE_URL}${data.result_url}`
+    }
+    return data
+}
+
+export async function applyRecommendedHair(
+    userImage: File,
+    landmarks: [number, number][],
+    styleIndex: number,
+): Promise<{ result_url: string; face_shape: string; face_shape_label: string; applied_style: { name: string; reason: string; length: string } }> {
+    const formData = new FormData()
+    formData.append('user_image', userImage)
+    formData.append('landmarks', JSON.stringify(landmarks))
+    formData.append('style_index', String(styleIndex))
+
+    const res = await fetch(`${API_BASE_URL}/style/hair-styling`, {
+        method: 'POST',
+        body: formData,
+    })
+    if (!res.ok) {
+        const error = await res.json()
+        throw new Error(error.detail || 'Hair styling failed')
+    }
+    const data = await res.json()
+    if (data.result_url.startsWith('/')) {
+        data.result_url = `${API_BASE_URL}${data.result_url}`
+    }
+    return data
+}
+
+export async function deleteAccount(): Promise<void> {
+    const res = await fetch(`${API_BASE_URL}/auth/me`, {
+        method: 'DELETE',
+        credentials: 'include',
+    })
+    if (!res.ok) {
+        const error = await res.json()
+        throw new Error(error.detail || 'Failed to delete account')
+    }
+}
+
 export async function getHistory(): Promise<HistoryItem[]> {
     const res = await fetch(`${API_BASE_URL}/analyze/history`, {
         credentials: 'include',

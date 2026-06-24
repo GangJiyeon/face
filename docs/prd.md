@@ -1,6 +1,6 @@
 # Product Requirements Document (PRD)
 
-**Project:** project — AI-Powered Personalized Beauty Recommendation System
+**Project:** SKAI — AI-Powered Personalized Beauty Recommendation System
 **Course:** Capstone Design 2026
 **Student:** 202330330 강지연
 
@@ -12,7 +12,7 @@
 Existing beauty recommendation services rely on fixed skin type surveys and fail to reflect daily changes in skin condition. Users cannot get personalized recommendations based on how their skin looks today.
 
 ### Solution
-project uses facial image analysis and a custom CV pipeline to estimate the user's current skin condition and recommend suitable products based on ingredient compatibility data.
+SKAI uses facial image analysis and a custom CV pipeline to estimate the user's current skin condition and recommend suitable products based on ingredient compatibility data.
 
 ### Core Direction
 - Do not rely solely on generic Vision APIs — build a custom face analysis pipeline
@@ -41,16 +41,18 @@ project uses facial image analysis and a custom CV pipeline to estimate the user
 | 01 | Skin condition estimation | Upload face photo → face detection → landmark extraction → ROI analysis → score per category |
 | 02 | Custom face analysis pipeline | Apply custom rules/models per facial region beyond generic API output |
 | 03 | Ingredient-based filtering | Auto-exclude unsuitable ingredients; filter products using Open Beauty Facts DB |
-| 04 | Product recommendation + explanation | Recommend products based on skin scores; generate natural language explanation via Claude API |
+| 04 | Product recommendation + explanation | Recommend products based on skin scores; generate natural language explanation via Gemini |
 | 05 | Guest mode | Full analysis and recommendation without login |
+| 06 | Google login + history | OAuth 2.0 login, analysis history saving and stats |
+| 07 | AI Style Studio | Gemini-based makeup/hair transfer, face-shape hair styling, color palette recommendation |
 
 ### 2nd Semester — Advanced
 
 | # | Feature | Description |
 |---|---------|-------------|
-| 06 | Skin change tracking | Save daily skin records; visualize trends over time |
-| 07 | Vertex AI custom model | Train and deploy custom skin condition classification model |
-| 08 | Style  (Beta) | Face shape detection → hairstyle and color recommendations |
+| 08 | Skin change tracking | Save daily skin records; visualize trends over time |
+| 09 | Vertex AI custom model | Train and deploy custom skin condition classification model |
+| 10 | Real-time makeup overlay | Live makeup overlay and filter extraction (Beta) |
 
 ---
 
@@ -87,13 +89,13 @@ Landing → Upload Photo → Analysis Loading → Result → Save Record → His
 | Period | Milestone | Key Deliverables |
 |--------|-----------|-----------------|
 | Week 1–2 | MVP Complete | Full UI, photo upload, skin analysis pipeline, product recommendation |
-| Week 3–4 | Auth + Enhancement | Google social login, skin record saving, environment data integration |
-| Week 5–6 | Polish + Deploy | Style tab shell, E2E testing, AWS deployment |
+| Week 3–4 | Auth + Style | Google social login, skin record saving, AI style studio (makeup/hair transfer) |
+| Week 5–6 | Polish + Deploy | Color palette recommendation, E2E testing, AWS deployment |
 
 ### 2nd Semester
 - Skin change trend visualization
 - Vertex AI custom model training and deployment
-- Style  feature full implementation
+- Real-time makeup overlay (Beta)
 
 ---
 
@@ -102,4 +104,3 @@ Landing → Upload Photo → Analysis Loading → Result → Save Record → His
 - IoT sensor integration (removed)
 - Payment or e-commerce functionality
 - Social features (sharing, comments)
-- Style  logic (UI shell only)
